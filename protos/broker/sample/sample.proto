@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package broker;
+
+// sample.sample.add: when create sample
+message Sample {
+  string guid = 1;
+  string title = 2;
+  string text = 3;
+  bool isActive = 4;
+  bool isDeleted = 5;
+  string createdAt = 6;
+  string updatedAt = 7;
+}

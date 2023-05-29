@@ -16,9 +16,10 @@ model User {
   guid               String   @unique
   fullName           String
   email              String
-  phone              String
-  bidsAvailable      BigInt
-  notificationsCount BigInt
+  password           String?
+  phoneNumber        String?
+  bidsAvailable      BigInt?  @default(0)
+  notificationsCount BigInt?  @default(0)
   isActive           Boolean? @default(true)
   isDeleted          Boolean? @default(false)
   createdAt          DateTime @default(now())

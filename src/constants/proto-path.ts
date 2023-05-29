@@ -3,11 +3,12 @@ import { generateCommonProtoPaths } from '@common/utils/proto-paths';
 
 const paths = [
   'common/common.proto',
-  'sample/sample.proto',
-  'sample/service.proto',
+  'auth/auth.proto',
+  'user/user.proto',
+  'broker/user/user.proto',
 ];
 
 export const protoPath = generateCommonProtoPaths(
-  join(__dirname, '..', '..', 'protos'),
+  join(process.cwd(), 'protos'),
   paths,
 );

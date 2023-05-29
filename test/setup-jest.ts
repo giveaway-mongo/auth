@@ -1,6 +1,6 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '@src/app/app.module';
+import { AppModule } from '@src/modules/app/app.module';
 import { getGrpcTestingOptions } from '@common/grpc/grpc-options';
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';

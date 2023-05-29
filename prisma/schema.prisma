@@ -7,17 +7,20 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
-model Sample {
-  id        Int      @id @default(autoincrement())
-  guid      String   @unique
-  title     String
-  text      String
-  isActive  Boolean? @default(true)
-  isDeleted Boolean? @default(false)
-  createdAt DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime @default(now()) @db.Timestamptz(6)
+model User {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  guid               String   @unique
+  fullName           String
+  email              String
+  phone              String
+  bidsAvailable      BigInt
+  notificationsCount BigInt
+  isActive           Boolean? @default(true)
+  isDeleted          Boolean? @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @default(now())
 }

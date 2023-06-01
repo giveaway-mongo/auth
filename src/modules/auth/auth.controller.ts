@@ -18,9 +18,9 @@ export class AuthController {
   @Public()
   @GrpcMethod('AuthService', 'SignUp')
   async signUp(signUpRequest: SignUpRequest): Promise<SignUpResponse> {
-    const { result, errors } = await this.authService.signUp(signUpRequest);
+    const { errors } = await this.authService.signUp(signUpRequest);
 
-    return { result, errors };
+    return { errors };
   }
 
   @Public()
@@ -36,10 +36,10 @@ export class AuthController {
   async verifyEmailToken(
     verifyEmailTokenRequest: VerifyEmailTokenRequest,
   ): Promise<VerifyEmailTokenResponse> {
-    const { result, errors } = this.authService.verifyEmailToken(
+    const { errors } = await this.authService.verifyEmailToken(
       verifyEmailTokenRequest,
     );
 
-    return { result, errors };
+    return { errors };
   }
 }

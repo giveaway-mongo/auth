@@ -11,15 +11,15 @@ import {
 } from './dto/auth.dto';
 import { WithError } from '@common/types/utils';
 import * as bcrypt from 'bcrypt';
-import { PrismaClient } from '@prisma/generated';
 import { generateGuid } from '@common/utils/generate-guid';
+import { PrismaService } from '@src/prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-    private prisma: PrismaClient,
+    private prisma: PrismaService,
   ) {}
 
   async signUp(
@@ -34,18 +34,32 @@ export class AuthService {
     });
 
     if (!user) {
-      //   give error
-      return;
+      //   give error by standard
+      throw Error('No user found.');
     }
 
-    await this.prisma.user.create({
-      data: {
-        guid: generateGuid(),
-        email,
-        password: hashedPassword,
-        fullName,
-        phoneNumber,
-      },
+    // send email
+
+    await this.prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          guid: generateGuid(),
+          email,
+          password: hashedPassword,
+          fullName,
+          phoneNumber,
+          isActive: false,
+        },
+      });
+
+      await tx.userConfirmationToken.create({
+        data: {
+          email,
+          isActive: true,
+          guid: user.guid,
+          verificationToken: generateGuid(),
+        },
+      });
     });
 
     return { errors: [] };
@@ -72,20 +86,43 @@ export class AuthService {
       return;
     }
 
-    return { email, errors: [] };
+    const payload = {
+      guid: user.guid,
+    };
+
+    const accessToken = this.jwtService.sign(payload);
+
+    return { result: { email, accessToken, refreshToken: '' }, errors: [] };
   }
 
   async verifyEmailToken(
     verifyEmailTokenRequest: VerifyEmailTokenRequest,
   ): Promise<WithError<VerifyEmailTokenResponse>> {
+    const { guid, verificationToken } = verifyEmailTokenRequest;
+
+    const userConfirmationToken =
+      await this.prisma.userConfirmationToken.findFirst({
+        where: { guid, verificationToken },
+      });
+
+    if (!userConfirmationToken) {
+      throw Error('No email with this code found.');
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.userConfirmationToken.update({
+        data: {
+          isActive: false,
+        },
+        where: { guid },
+      });
+
+      await tx.user.update({
+        data: { isActive: true },
+        where: { guid },
+      });
+    });
+
     return { errors: [] };
-  }
-
-  async login(user: any) {
-    const payload = { username: user.username, sub: user.userId };
-
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
   }
 }

@@ -1,62 +1,80 @@
 version: '3.9'
 
 services:
-  app:
-    build: .
-    image: '${CONTAINER_TEST_IMAGE}'
-    ports:
-      - '8080:50051'
-    environment:
-      RUN: test
-      HOST: 'localhost'
-      PORT: '50051'
-      DATABASE_URL: 'postgresql://postgres:root@postgres:5432/postgres?schema=public'
-      RABBITMQ_HOST: 'rabbitmq'
-      RABBITMQ_USERNAME: 'user'
-      RABBITMQ_PASSWORD: 'bitnami'
-    depends_on:
-      postgres:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-    links:
-      - postgres
-      - rabbitmq
-    networks:
-      - app-tier
+#  app:
+#    build: .
+#    image: app
+#    ports:
+#      - '8080:50051'
+#    environment:
+#      RUN: test
+#      HOST: 'localhost'
+#      PORT: '50051'
+#      DATABASE_URL: 'mongodb://mongodb:mongodb@mongodb:27017/test?authSource=admin'
+#      RABBITMQ_HOST: 'rabbitmq'
+#      RABBITMQ_USERNAME: 'user'
+#      RABBITMQ_PASSWORD: 'bitnami'
+#    depends_on:
+##      mongodb:
+##        condition: service_healthy
+#      rabbitmq:
+#        condition: service_healthy
+#    links:
+#      - mongodb
+#      - rabbitmq
+#    networks:
+#      - app-tier
 
 
-  postgres:
-    image: postgres:15.2
+  mongodb:
+    image: bitnami/mongodb:5.0.18
     restart: always
-    environment:
-      POSTGRES_DB: postgres
-      POSTGRES_PASSWORD: root
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
     ports:
-      - '5432'
+      - '27017:27017'
+    environment:
+      MONGODB_ADVERTISED_HOSTNAME: 127.0.0.1
+      MONGODB_REPLICA_SET_MODE: primary
+      MONGODB_ROOT_USER: mongodb
+      MONGODB_ROOT_PASSWORD: mongodb
+      MONGODB_REPLICA_SET_KEY: replicasetkey123
+      MONGODB_USERNAME: mongodb
+      MONGODB_PASSWORD: mongodb
+      MONGODB_DATABASE: test
+#      MONGO_INITDB_ROOT_USERNAME: anvar_aka
+#      MONGO_INITDB_ROOT_PASSWORD: mongodb
+#      MONGO_INITDB_DATABASE: test
+#      MONGO_REPLICA_HOST: localhost
+#      MONGO_REPLICA_PORT: 27017
+    healthcheck:
+      test: echo 'db.stats().ok' | mongo localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
     networks:
       - app-tier
+    volumes:
+      - 'mongo-db:/bitnami/mongodb'
 
-  rabbitmq:
-    image: 'bitnami/rabbitmq:latest'
-    environment:
-      RABBITMQ_USERNAME: user
-      RABBITMQ_PASSWORD: bitnami
-    healthcheck:
-      test: rabbitmq-diagnostics -q ping
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    ports:
-      - "5672:5672"
-    networks:
-      - app-tier
+
+#  rabbitmq:
+#    image: 'bitnami/rabbitmq:latest'
+#    environment:
+#      RABBITMQ_USERNAME: user
+#      RABBITMQ_PASSWORD: bitnami
+#    healthcheck:
+#      test: rabbitmq-diagnostics -q ping
+#      interval: 5s
+#      timeout: 5s
+#      retries: 5
+#    ports:
+#      - "5672:5672"
+#    networks:
+#      - app-tier
 
 networks:
   app-tier:
     driver: bridge
+
+volumes:
+  mongo-db:

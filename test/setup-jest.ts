@@ -20,13 +20,15 @@ global.beforeAll(async () => {
     throw Error('Not testing environment!');
   }
 
+  console.log('db url:', process.env.DATABASE_URL);
+
   testingModule = await Test.createTestingModule({
     imports: [AppModule],
   }).compile();
 
   app = await testingModule.createNestApplication();
 
-  app.connectMicroservice(getGrpcTestingOptions('sample', protoPath));
+  app.connectMicroservice(getGrpcTestingOptions('auth', protoPath));
 
   app.connectMicroservice(getRabbitMQOptions('new_queue'));
 

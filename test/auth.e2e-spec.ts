@@ -1,95 +1,70 @@
 import { INestApplication } from '@nestjs/common';
-import { SamplesController } from '@src/modules/users/users.module';
+import { AuthController } from '@src/modules/auth/auth.controller';
 import prisma from './client';
-import { samples } from './fixtures/samples';
+import { users } from './fixtures/users';
 import { applyFixtures } from './utils/applyFixtures';
-import {
-  SampleCreateRequest,
-  SampleUpdateRequest,
-} from '@protogen/sample/sample';
+import { userConfirmationTokens } from './fixtures/user-confirmation-tokens';
+import { SignUpRequest } from '@protogen/auth/auth';
 
-describe('SampleController (e2e)', () => {
+describe('AuthController (e2e)', () => {
   let app: INestApplication;
-  let controller: SamplesController;
+  let controller: AuthController;
 
   beforeEach(async () => {
     app = (global as any).app;
-    controller = app.get<SamplesController>(SamplesController);
+    controller = app.get<AuthController>(AuthController);
 
-    await applyFixtures(samples, prisma.sample);
+    await applyFixtures(users, prisma.user);
+    await applyFixtures(userConfirmationTokens, prisma.userConfirmationToken);
   });
 
-  it('gets list of samples', async () => {
-    const response = await controller.list({ options: undefined });
+  it('signs up', async () => {
+    const user: SignUpRequest = {
+      email: 'some-email@test.com',
+      phoneNumber: '+9989888888888',
+      fullName: 'Test Testerov',
+      password: 'Test1234',
+    };
 
-    expect(response.count).toEqual(3);
+    const response = await controller.signUp(user);
 
-    const results = response.results;
-    const count = response.count;
-
-    expect(count).toEqual(3);
-
-    expect(results[0].guid).toEqual('66e33c1b-938a-497b-89db-56532322ac49');
-    expect(results[0].title).toEqual('First sample title');
-    expect(results[0].text).toEqual('This is the first test sample!');
-
-    expect(results[1].guid).toEqual('9c3feb28-1438-456e-be4f-d6edabebb3d2');
-    expect(results[1].title).toEqual('Second sample title');
-    expect(results[1].text).toEqual('This is the second test sample!');
-
-    expect(results[2].guid).toEqual('039b06f5-e1e8-48f4-8de9-4f88da9e07df');
-    expect(results[2].title).toEqual('Third sample title');
-    expect(results[2].text).toEqual('This is the third test sample!');
+    expect(response.errors.length).toEqual(0);
   });
 
-  it('gets one sample', async () => {
-    const response = await controller.detail({
-      guid: '9c3feb28-1438-456e-be4f-d6edabebb3d2',
-    });
+  it('signs in', async () => {
+    const user = {
+      email: 'test_email@gmail.com',
+      password: 'Test12345',
+    };
+
+    const response = await controller.signIn(user);
 
     const result = response.result;
 
-    expect(result.guid).toEqual('9c3feb28-1438-456e-be4f-d6edabebb3d2');
-    expect(result.title).toEqual('Second sample title');
-    expect(result.text).toEqual('This is the second test sample!');
+    expect(result.email).toEqual(user.email);
+    expect(result.accessToken).toBeDefined();
+    expect(result.refreshToken).toEqual('');
   });
 
-  it('adds one sample', async () => {
-    const sample: SampleCreateRequest = {
-      title: 'Title for created sample',
-      text: 'Text for created sample',
+  it('verifies the email token', async () => {
+    const request = {
+      guid: '66e33c1b-938a-497b-89db-56532322ac49',
+      verificationToken: 'aaaa-aaaa-aaaa-aaaa-56532322ac49',
     };
 
-    const response = await controller.create(sample);
+    const response = await controller.verifyEmailToken(request);
 
-    expect(response.result.guid).toBeDefined();
-    expect(response.result.title).toEqual(sample.title);
-    expect(response.result.text).toEqual(sample.text);
+    expect(response.errors.length).toBeGreaterThan(0);
   });
 
-  it('updates one sample', async () => {
-    const updatedSample: SampleUpdateRequest = {
-      guid: '039b06f5-e1e8-48f4-8de9-4f88da9e07df',
-      title: 'Updated title',
-      text: 'Updated text',
+  it('errors invalid email login', async () => {
+    const user = {
+      email: 'test_email@gmail.com',
+      password: 'test12345',
     };
 
-    const response = await controller.update(updatedSample);
+    const response = await controller.signIn(user);
 
-    const result = response.result;
-
-    expect(result.guid).toEqual(updatedSample.guid);
-    expect(result.title).toEqual(updatedSample.title);
-    expect(result.text).toEqual(updatedSample.text);
-
-    const detailResponse = await controller.detail({
-      guid: updatedSample.guid,
-    });
-
-    const detailResult = detailResponse.result;
-
-    expect(detailResult.guid).toEqual(updatedSample.guid);
-    expect(detailResult.title).toEqual(updatedSample.title);
-    expect(detailResult.text).toEqual(updatedSample.text);
+    expect(response.errors.length).toBeGreaterThan(0);
   });
 });

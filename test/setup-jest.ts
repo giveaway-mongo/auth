@@ -50,4 +50,4 @@ afterAll(async () => {
 
 afterEach(async () => {
   await execAsync('pnpm test:db-push');
-}, 30000);
+}, 15000);

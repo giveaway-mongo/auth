@@ -12,7 +12,6 @@ services:
       MONGODB_ROOT_USER: mongodb
       MONGODB_ROOT_PASSWORD: mongodb
       MONGODB_REPLICA_SET_KEY: replicasetkey123
-#      MONGODB_DATABASE: test
     healthcheck:
       test: echo 'db.stats().ok' | mongo localhost:27017/test --quiet
       interval: 10s

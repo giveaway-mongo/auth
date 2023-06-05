@@ -33,9 +33,9 @@ export class AuthService {
       where: { email },
     });
 
-    if (!user) {
+    if (user) {
       //   give error by standard
-      throw Error('No user found.');
+      throw Error('Email already exists.');
     }
 
     // send email
@@ -76,14 +76,14 @@ export class AuthService {
 
     if (!user) {
       // Add error
-      return;
+      throw Error('User does not exist');
     }
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
     if (!isPasswordCorrect) {
       //   Add error
-      return;
+      throw Error('Incorrect password.');
     }
 
     const payload = {

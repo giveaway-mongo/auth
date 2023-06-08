@@ -13,6 +13,7 @@ import { WithError } from '@common/types/utils';
 import * as bcrypt from 'bcrypt';
 import { generateGuid } from '@common/utils/generate-guid';
 import { PrismaService } from '@src/prisma/prisma.service';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class AuthService {
@@ -76,14 +77,14 @@ export class AuthService {
 
     if (!user) {
       // Add error
-      throw Error('User does not exist');
+      throw new RpcException({ hello: 'world' });
     }
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
     if (!isPasswordCorrect) {
       //   Add error
-      throw Error('Incorrect password.');
+      throw new RpcException('Incorrect password.');
     }
 
     const payload = {

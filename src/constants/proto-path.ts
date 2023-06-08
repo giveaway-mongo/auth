@@ -4,6 +4,7 @@ import { generateCommonProtoPaths } from '@common/utils/proto-paths';
 const paths = [
   'common/common.proto',
   'auth/auth.proto',
+  'auth/service.proto',
   'user/user.proto',
   'broker/user/user.proto',
 ];

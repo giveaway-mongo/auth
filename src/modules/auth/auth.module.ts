@@ -6,7 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from '@src/modules/auth/jwt.strategy';
 import { AuthController } from '@src/modules/auth/auth.controller';
 import { PrismaModule } from '@src/prisma/prisma.module';
-import { jwtConstants } from '@src/modules/auth/constants'
+import { jwtConstants } from '@src/modules/auth/constants';
 
 @Module({
   imports: [

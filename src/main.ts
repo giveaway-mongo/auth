@@ -5,17 +5,28 @@ import { getGrpcOptions } from '@common/grpc/grpc-options';
 import { protobufConfigure } from '@common/grpc/protobuf-config';
 import { getRabbitMQOptions } from '@common/rabbitMQ/rabbitMQ-options';
 import { protoPath } from './constants/proto-path';
+import { ValidationPipe } from '@nestjs/common';
+import { MyRpcExceptionFilter } from '@common/utils/rpc-exception.filter';
 
 protobufConfigure();
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    snapshot: true,
+  });
+
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalFilters(new MyRpcExceptionFilter());
 
   app.connectMicroservice<MicroserviceOptions>(
     getGrpcOptions('auth', protoPath),
+    { inheritAppConfig: true },
   );
 
-  app.connectMicroservice<MicroserviceOptions>(getRabbitMQOptions('new_queue'));
+  app.connectMicroservice<MicroserviceOptions>(
+    getRabbitMQOptions('new_queue'),
+    { inheritAppConfig: true },
+  );
 
   await app.startAllMicroservices();
   await app.listen(3001);

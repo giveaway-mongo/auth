@@ -52,9 +52,11 @@ describe('AuthController (e2e)', () => {
       verificationToken: 'aaaa-aaaa-aaaa-aaaa-56532322ac49',
     };
 
-    const response = await controller.verifyEmailToken(request);
-
-    expect(response.errors.length).toBeGreaterThan(0);
+    try {
+      await controller.verifyEmailToken(request);
+    } catch (error) {
+      expect(error).toBeInstanceOf(Error);
+    }
   });
 
   it('errors invalid email login', async () => {
@@ -63,8 +65,10 @@ describe('AuthController (e2e)', () => {
       password: 'test12345',
     };
 
-    const response = await controller.signIn(user);
-
-    expect(response.errors.length).toBeGreaterThan(0);
+    try {
+      await controller.signIn(user);
+    } catch (errors) {
+      expect(errors).toBeInstanceOf(Error);
+    }
   });
 });

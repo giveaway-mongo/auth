@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { UsersService } from '@src/modules/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import {
@@ -77,6 +77,8 @@ export class AuthService {
 
     if (!user) {
       // Add error
+      console.log('err');
+      // throw new RpcException({ hello: 'world' });
       throw new RpcException({ hello: 'world' });
     }
 
@@ -84,6 +86,7 @@ export class AuthService {
 
     if (!isPasswordCorrect) {
       //   Add error
+      console.log('error');
       throw new RpcException('Incorrect password.');
     }
 

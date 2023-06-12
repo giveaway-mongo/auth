@@ -38,6 +38,7 @@
     "@nestjs/passport": "^9.0.3",
     "@nestjs/platform-express": "^9.4.0",
     "@prisma/client": "^4.13.0",
+    "@sendgrid/mail": "^7.7.0",
     "amqp-connection-manager": "^4.1.12",
     "amqplib": "^0.10.3",
     "bcrypt": "^5.1.0",
@@ -50,6 +51,7 @@
     "protobufjs": "^7.2.3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
+    "sib-api-v3-sdk": "^8.5.0",
     "ts-proto": "^1.146.0",
     "uuid": "^9.0.0"
   },

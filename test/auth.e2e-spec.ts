@@ -52,9 +52,34 @@ describe('AuthController (e2e)', () => {
       verificationToken: 'aaaa-aaaa-aaaa-aaaa-56532322ac49',
     };
 
+    const result = await controller.verifyEmailToken(request);
+    expect(result.errors).toBe(null);
+  });
+
+  it('error while verify the email token (ver. token)', async () => {
+    const request = {
+      guid: '66e33c1b-938a-497b-89db-56532322ac49',
+      verificationToken: 'aaaa-aaaa-aaaa-aaaa-56532322ac10',
+    };
+
     try {
       await controller.verifyEmailToken(request);
     } catch (error) {
+      console.log(error);
+      expect(error).toBeInstanceOf(Error);
+    }
+  });
+
+  it('error while verify the email token (guid)', async () => {
+    const request = {
+      guid: '66e33c1b-938a-497b-89db-56532322ac10',
+      verificationToken: 'aaaa-aaaa-aaaa-aaaa-56532322ac49',
+    };
+
+    try {
+      await controller.verifyEmailToken(request);
+    } catch (error) {
+      console.log(error);
       expect(error).toBeInstanceOf(Error);
     }
   });

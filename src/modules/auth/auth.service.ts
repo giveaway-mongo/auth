@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UsersService } from '@src/modules/users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { ERROR_TYPES } from '@src/common/constants/error';
 import {
   SignInRequest,
   SignInResponse,
@@ -15,12 +14,7 @@ import * as bcrypt from 'bcrypt';
 import { generateGuid } from '@common/utils/generate-guid';
 import { PrismaService } from '@src/prisma/prisma.service';
 import { RpcException } from '@nestjs/microservices';
-import {
-  getErrors,
-  getFieldErrors,
-  getNonFieldErrors,
-} from '@common/utils/error';
-import { FieldError } from '@protogen/common/common';
+import { sendEmail } from '@src/utils/sendgrid';
 
 @Injectable()
 export class AuthService {
@@ -46,6 +40,14 @@ export class AuthService {
     }
 
     // send email
+
+    // await sendEmail({
+    //   to: 'anvarabdulsatarov@gmail.com',
+    //   from: 'a.abdulsatarov.b@gmail.com',
+    //   html: '<strong>hello</strong> world!',
+    //   subject: 'Some subject',
+    //   text: 'some text here',
+    // });
 
     await this.prisma.$transaction(async (tx) => {
       const user = await tx.user.create({

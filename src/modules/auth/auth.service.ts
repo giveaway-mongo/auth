@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UsersService } from '@src/modules/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import {
@@ -14,6 +14,7 @@ import * as bcrypt from 'bcrypt';
 import { generateGuid } from '@common/utils/generate-guid';
 import { PrismaService } from '@src/prisma/prisma.service';
 import { RpcException } from '@nestjs/microservices';
+import { getErrors } from '@common/utils/error';
 
 @Injectable()
 export class AuthService {
@@ -63,7 +64,7 @@ export class AuthService {
       });
     });
 
-    return { errors: [] };
+    return { errors: getErrors() };
   }
 
   async signIn(
@@ -96,7 +97,10 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(payload);
 
-    return { result: { email, accessToken, refreshToken: '' }, errors: [] };
+    return {
+      result: { email, accessToken, refreshToken: '' },
+      errors: getErrors(),
+    };
   }
 
   async verifyEmailToken(
@@ -127,6 +131,6 @@ export class AuthService {
       });
     });
 
-    return { errors: [] };
+    return { errors: getErrors() };
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UsersService } from '@src/modules/users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import { ERROR_TYPES } from '@src/common/constants/error';
 import {
   SignInRequest,
   SignInResponse,
@@ -14,7 +15,12 @@ import * as bcrypt from 'bcrypt';
 import { generateGuid } from '@common/utils/generate-guid';
 import { PrismaService } from '@src/prisma/prisma.service';
 import { RpcException } from '@nestjs/microservices';
-import { getErrors } from '@common/utils/error';
+import {
+  getErrors,
+  getFieldErrors,
+  getNonFieldErrors,
+} from '@common/utils/error';
+import { FieldError } from '@protogen/common/common';
 
 @Injectable()
 export class AuthService {
@@ -36,8 +42,7 @@ export class AuthService {
     });
 
     if (user) {
-      //   give error by standard
-      throw Error('Email already exists.');
+      throw new RpcException('Email already exists.');
     }
 
     // send email
@@ -64,7 +69,7 @@ export class AuthService {
       });
     });
 
-    return { errors: getErrors() };
+    return { errors: null };
   }
 
   async signIn(
@@ -77,17 +82,12 @@ export class AuthService {
     });
 
     if (!user) {
-      // Add error
-      console.log('err');
-      // throw new RpcException({ hello: 'world' });
-      throw new RpcException({ hello: 'world' });
+      throw new RpcException('User with such email not found.');
     }
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
     if (!isPasswordCorrect) {
-      //   Add error
-      console.log('error');
       throw new RpcException('Incorrect password.');
     }
 
@@ -99,7 +99,7 @@ export class AuthService {
 
     return {
       result: { email, accessToken, refreshToken: '' },
-      errors: getErrors(),
+      errors: null,
     };
   }
 
@@ -114,7 +114,7 @@ export class AuthService {
       });
 
     if (!userConfirmationToken) {
-      throw Error('No email with this code found.');
+      throw new RpcException('No email with this code found.');
     }
 
     await this.prisma.$transaction(async (tx) => {
@@ -131,6 +131,6 @@ export class AuthService {
       });
     });
 
-    return { errors: getErrors() };
+    return { errors: null };
   }
 }

@@ -6,7 +6,7 @@ import { protobufConfigure } from '@common/grpc/protobuf-config';
 import { getRabbitMQOptions } from '@common/rabbitMQ/rabbitMQ-options';
 import { protoPath } from './constants/proto-path';
 import { ValidationPipe } from '@nestjs/common';
-import { MyExceptionFilter, MyRpcExceptionFilter } from '@common/utils/rpc-exception.filter'
+import { RpcExceptionFilter } from '@common/utils/rpc-exception.filter';
 
 protobufConfigure();
 
@@ -16,7 +16,7 @@ async function bootstrap() {
   });
 
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
-  app.useGlobalFilters(new MyExceptionFilter());
+  app.useGlobalFilters(new RpcExceptionFilter());
   // app.useGlobalFilters(new MyRpcExceptionFilter());
 
   app.connectMicroservice<MicroserviceOptions>(

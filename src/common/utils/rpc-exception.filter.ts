@@ -1,37 +1,35 @@
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  HttpException,
-  RpcExceptionFilter,
-} from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
-import { Observable, of, throwError } from 'rxjs';
-import { Response } from 'express';
+import { getErrors } from '@common/utils/error';
+import { ERROR_CODES, SERVER_ERROR } from '@common/constants/error';
 
 @Catch(RpcException)
-export class MyRpcExceptionFilter implements RpcExceptionFilter {
+export class RpcExceptionFilter implements ExceptionFilter {
   catch(exception: RpcException, host: ArgumentsHost) {
-    console.log('my message', exception.getError());
+    if (typeof exception.getError() === 'string') {
+      return {
+        errors: getErrors({
+          nonFieldErrors: [exception.getError() as string],
+          errorCode: ERROR_CODES.BAD_REQUEST,
+        }),
+      };
+    }
 
-    return throwError(() => exception.getError());
+    return {
+      errors: exception.getError(),
+    };
   }
 }
 
 @Catch()
-export class MyExceptionFilter implements ExceptionFilter {
-  catch(exception: RpcException, host: ArgumentsHost) {
-    console.log('CAUGHT!', exception.getError());
+export class ServerExceptionFilter implements ExceptionFilter {
+  catch(exception: any, host: ArgumentsHost): any {
+    console.log(exception);
 
-    return of({
-      errors: [
-        {
-          location: ['12'],
-          message: 'hello',
-          type: 'my type',
-          nonFieldErrors: ['hello a'],
-        },
-      ],
-    });
+    return {
+      errors: getErrors({
+        nonFieldErrors: [SERVER_ERROR],
+      }),
+    };
   }
 }

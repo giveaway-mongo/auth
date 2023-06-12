@@ -28,7 +28,7 @@ describe('AuthController (e2e)', () => {
 
     const response = await controller.signUp(user);
 
-    expect(response.errors.fieldErrors).toEqual(0);
+    expect(response.errors).toEqual(null);
   });
 
   it('signs in', async () => {

@@ -1,13 +1,14 @@
 import { Error, FieldError } from '@protogen/common/common';
+import { ERROR_CODES } from '@common/constants/error';
 
 const defaultFieldErrors = [];
 const defaultNonFieldErrors = [];
 
 export const getFieldErrors = (
-  newFieldError: FieldError,
+  newFieldErrors: FieldError[],
   fieldErrors: FieldError[] = defaultFieldErrors,
 ) => {
-  return [...fieldErrors, newFieldError];
+  return [...fieldErrors, ...newFieldErrors];
 };
 
 export const getNonFieldErrors = (
@@ -18,8 +19,15 @@ export const getNonFieldErrors = (
 };
 
 export const getErrors = (
-  fieldErrors: FieldError[] = defaultFieldErrors,
-  nonFieldErrors: string[] = defaultNonFieldErrors,
+  {
+    fieldErrors = defaultFieldErrors,
+    nonFieldErrors = defaultNonFieldErrors,
+    errorCode = ERROR_CODES.SERVER_ERROR,
+  }: Partial<Error> = {
+    fieldErrors: defaultFieldErrors,
+    nonFieldErrors: defaultNonFieldErrors,
+    errorCode: ERROR_CODES.SERVER_ERROR,
+  },
 ): Error => {
-  return { fieldErrors, nonFieldErrors };
+  return { fieldErrors, nonFieldErrors, errorCode };
 };

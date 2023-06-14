@@ -16,7 +16,7 @@ PROTO_PATHS=(
 if [[ "$OSTYPE" == "msys" ]]; then
   protoc -I ./protos --plugin=protoc-gen-ts_proto=".\node_modules\.bin\protoc-gen-ts_proto.cmd" --ts_proto_out=./protogen "${PROTO_PATHS[@]}"
 else
-  protoc -I ./protos --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./protogen ./protos/common/*.proto "${PROTO_PATHS[@]}"
+  protoc -I ./protos --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./protogen "${PROTO_PATHS[@]}"
 fi;
 
 sleep 3

@@ -10,7 +10,7 @@ import { JwtAuthGuard } from '@src/modules/auth/jwt-auth.guard';
     AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: !isTestEnvironment() ? '.env' : '.env.test',
+      envFilePath: !isTestEnvironment() ? '.env' : '.env.win-test',
     }),
   ],
   providers: [

@@ -4,6 +4,7 @@ set -e
 
 cd /app
 
+echo "RUN: ""$RUN"
 echo "Database: ""$DATABASE_URL"
 
 ls -la
@@ -17,10 +18,10 @@ if [[ $RUN == "production" ]]; then
   echo "DATABASE_URL=$DATABASE_URL" >> ./.env
 
   export NODE_ENV='production'
+  ls -la
+  npm run p:db-push-production
 
-  npx prisma migrate deploy
-
-  pm2-runtime
+  pm2-runtime ecosystem.config.js
 fi
 
 # shellcheck disable=SC2039

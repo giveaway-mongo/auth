@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-deployment
+spec:
+  selector:
+    matchLabels:
+      app: auth-deployment-label
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: auth-deployment-label
+    spec:
+      containers:
+        - name: auth-container
+          image: auth-image
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: RUN
+              value: 'production'
+            - name: HOST
+              value: 'localhost'
+            - name: PORT
+              value: '50051'
+            - name: DATABASE_URL
+              value: 'mongodb+srv://anvar_aka:mongodb@giveaway.axcgf0w.mongodb.net/test'
+            - name: RABBITMQ_HOST
+              value: 'localhost'
+            - name: RABBITMQ_USERNAME
+              value: 'guest'
+            - name: RABBITMQ_PASSWORD
+              value: 'guest'
+          ports:
+            - containerPort: 8080
+              name: auth-port

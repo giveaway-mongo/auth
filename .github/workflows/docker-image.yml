@@ -13,5 +13,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Start test
-      run: docker build -f Dockerfile.test -t app . && docker-compose -f docker-compose.test.yaml run app
+      run: git submodule init |
+        && git submodule update --merge --recursive --remote |
+        && docker build -f Dockerfile.test -t app . |
+        && docker-compose -f docker-compose.test.yaml run app 
       

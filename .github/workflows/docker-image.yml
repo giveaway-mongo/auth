@@ -13,5 +13,28 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Start test
-      run: git submodule init  && git submodule update --merge --recursive --remote && docker build -f Dockerfile.test -t app . && docker-compose -f docker-compose.test.yaml run app 
-      
+      run: |
+        git submodule init  
+        git submodule update --merge --recursive --remote
+        docker build -f Dockerfile.test -t app . 
+        docker-compose -f docker-compose.test.yaml run app 
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Deploy
+      run: |
+        git submodule init
+        git submodule update --merge --recursive --remote 
+        docker build -t app . 
+        curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl" 
+        chmod +x ./kubectl && mkdir -p ~/.kube
+        mv ./kubectl ~/.kube && export PATH=$PATH:$HOME/.kube
+        ls ~/.kube/config
+        cat $KUBE_CONFIG >> ~/.kube/config
+        cat ~/.kube/config
+        DEPLOYMENT=$(echo "Hello_CI_CD" | sed s/_/-/g | sed s/fast-//g)
+        echo $DEPLOYMENT
+        kubectl apply -f .kube/
+        kubectl set image -n $NAMESPACE deployment/$DEPLOYMENT $DEPLOYMENT=$CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:$CI_PIPELINE_IID
+        rm -rf ~/.kube

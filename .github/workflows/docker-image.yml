@@ -31,7 +31,7 @@ jobs:
         curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl" 
         chmod +x ./kubectl && mkdir -p ~/.kube
         mv ./kubectl ~/.kube && export PATH=$PATH:$HOME/.kube
-        ls ~/.kube/config
+        ls ~/.kube
         cat $KUBE_CONFIG >> ~/.kube/config
         cat ~/.kube/config
         DEPLOYMENT=$(echo "Hello_CI_CD" | sed s/_/-/g | sed s/fast-//g)

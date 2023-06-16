@@ -19,6 +19,7 @@ jobs:
         docker build -f Dockerfile.test -t app . 
         docker-compose -f docker-compose.test.yaml run app 
   deploy:
+    needs: test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3

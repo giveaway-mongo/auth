@@ -32,7 +32,6 @@ jobs:
         chmod +x ./kubectl && mkdir -p ~/.kube
         mv ./kubectl ~/.kube && export PATH=$PATH:$HOME/.kube
         ls ~/.kube
-        echo ${{ secrets.KUBE_CONFIG }}
         cat ${{ secrets.KUBE_CONFIG }} >> ~/.kube/config
         cat ~/.kube/config
         DEPLOYMENT=$(echo "Hello_CI_CD" | sed s/_/-/g | sed s/fast-//g)

@@ -39,6 +39,6 @@ jobs:
         cat ~/.kube/config
         DEPLOYMENT=$(echo "Hello_CI_CD" | sed s/_/-/g | sed s/fast-//g)
         echo $DEPLOYMENT
-        kubectl apply -f .kube/
-        kubectl set image -n $NAMESPACE deployment/$DEPLOYMENT $DEPLOYMENT=$CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:$CI_PIPELINE_IID
+        kubectl apply -f config/
+        kubectl set image -n $NAMESPACE deployment/$DEPLOYMENT app:latest
         rm -rf ~/.kube

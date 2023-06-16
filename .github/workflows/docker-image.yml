@@ -35,7 +35,7 @@ jobs:
         mv ./kubectl ~/.kube && export PATH=$PATH:$HOME/.kube
         ls ~/.kube
         touch ~/.kube/config
-        echo $KUBE_CONFIG >> ~/.kube/config
+        echo $KUBE_CONFIG | base64 --decode > ~/.kube/config
         cat ~/.kube/config
         DEPLOYMENT=$(echo "Hello_CI_CD" | sed s/_/-/g | sed s/fast-//g)
         echo $DEPLOYMENT

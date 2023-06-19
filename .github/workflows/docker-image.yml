@@ -9,8 +9,10 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  NAMESPACE: giveaway
   TEST_IMAGE: $REGISTRY/$IMAGE_NAME:${{ github.sha }}
   DEV_IMAGE: $REGISTRY/$IMAGE_NAME:latest
+  PROJECT_NAME: auth
 
 jobs:
        
@@ -40,7 +42,7 @@ jobs:
         submodules: recursive
     
     - name: Login to CR
-      run:  docker login ghcr.io -u ${{ github.actor }} -p  ${{ secrets.ACCESS_TOKEN }} && echo ${{ github.repository }}
+      run:  docker login ghcr.io -u ${{ github.actor }} -p  ${{ secrets.ACCESS_TOKEN }}
       
     - name: Build  
       run: docker build -t ${{ env.TEST_IMAGE }} .
@@ -57,20 +59,21 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+    - name: Login to CR
+      run:  docker login ghcr.io -u ${{ github.actor }} -p  ${{ secrets.ACCESS_TOKEN }}
+    - name: Pull Docker image
+      run: docker pull ${{ env.DEV_IMAGE }}
+    - name: Install kubectl
+      run:  curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl" 
     - name: Deploy
       env:
         KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
       run: |
-        docker pull ${{ env.DEV_IMAGE }}
-        curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl" 
         chmod +x ./kubectl && mkdir -p ~/.kube
         mv ./kubectl ~/.kube && export PATH=$PATH:$HOME/.kube
-        ls ~/.kube
         touch ~/.kube/config
         echo $KUBE_CONFIG | base64 --decode > ~/.kube/config
-        cat ~/.kube/config
-        DEPLOYMENT=$(echo "Hello_CI_CD" | sed s/_/-/g | sed s/fast-//g)
-        echo $DEPLOYMENT
         kubectl apply -f config/
-        kubectl set image -n $NAMESPACE deployment/$DEPLOYMENT ${{ env.DEV_IMAGE }}
+        kubectl set image deployment/{{ env.PROJECT_NAME }} $PROJECT_NAME=${{ env.DEV_IMAGE }}
+        kubectl rollout status deploy/$PROJECT_NAME
         rm -rf ~/.kube

@@ -41,6 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Submodule sync
+      uses: actions/checkout@v2
       with:
         submodule: recursive
     - name: Build  

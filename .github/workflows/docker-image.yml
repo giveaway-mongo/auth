@@ -18,13 +18,19 @@ jobs:
 #   test:
 #     runs-on: ubuntu-latest
 #     steps:
-#     - uses: actions/checkout@v2
+#     - name: Submodule sync
+#       uses: actions/checkout@v2
+#       with:
+#         submodules: recursive
+    
+#     - name: Checkout
+#       uses: actions/checkout@v2
+    
+#     - name: Build test image
+#       run: docker build -f Dockerfile.test -t app . 
+    
 #     - name: Start test
-#       run: |
-#         git submodule init  
-#         git submodule update --merge --recursive --remote
-#         docker build -f Dockerfile.test -t app . 
-#         docker-compose -f docker-compose.test.yaml run app 
+#       run: docker-compose -f docker-compose.test.yaml run app 
 
   build:
     runs-on: ubuntu-latest
@@ -36,9 +42,7 @@ jobs:
     
     - name: Login to CR
       run: |
-        echo ${{ vars.RAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin 
-        echo ${{github.actor}} 
-        echo ${{vars.RAT}} 
+        docker login ghcr.io -u ${{ github.actor }} -p  ${{ secrets.GITHUB_TOKEN }}
       
     - name: Build  
       run: docker build -t ${{ env.TEST_IMAGE }} .

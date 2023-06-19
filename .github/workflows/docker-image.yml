@@ -75,5 +75,4 @@ jobs:
         echo $KUBE_CONFIG | base64 --decode > ~/.kube/config
         kubectl apply -f config/
         kubectl set image deployment/{{ env.PROJECT_NAME }} auth=${{ env.DEV_IMAGE }}
-        kubectl rollout status deployment/$PROJECT_NAME
         rm -rf ~/.kube

@@ -87,7 +87,7 @@ WORKDIR /app
 #
 #RUN ls -la
 #
-#COPY scripts/docker-entrypoint.sh /
+COPY scripts/docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
 
 # env.RUN must be "production"

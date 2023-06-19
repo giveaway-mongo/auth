@@ -42,10 +42,9 @@ jobs:
     steps:
     - name: Build image
       run: | 
-        # docker pull ${{ env.DEV_IMAGE }} || true
         git submodule init
         git submodule update --merge --recursive --remote
-        docker build --cache-from ${{ env.DEV_IMAGE}} -t ${{ env.TEST_IMAGE }} .
+        docker build -t ${{ env.TEST_IMAGE }} .
         docker tag ${{ env.TEST_IMAGE }} ${{ env.DEV_IMAGE }}
         docker push ${{ env.DEV_IMAGE }}
         

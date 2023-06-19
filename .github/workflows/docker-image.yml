@@ -83,5 +83,8 @@ jobs:
         KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
       run: kubectl apply -f config/
     
-    - name: Deploy
-      run: kubectl set image deployment {{ env.PROJECT_NAME }} $INSTANCE_NAME=${{ env.DEV_IMAGE }}
+    - name: Deploy 
+      run: |
+        echo deployment/$PROJECT_NAME
+        echo $DEV_IMAGE
+        kubectl set image deployment/$PROJECT_NAME $PROJECT_NAME=$DEV_IMAGE

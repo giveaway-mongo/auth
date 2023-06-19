@@ -74,6 +74,6 @@ jobs:
         touch ~/.kube/config
         echo $KUBE_CONFIG | base64 --decode > ~/.kube/config
         kubectl apply -f config/
-        kubectl set image deployment/{{ env.PROJECT_NAME }} $PROJECT_NAME=${{ env.DEV_IMAGE }}
+        kubectl set image deploy/{{ env.PROJECT_NAME }} $PROJECT_NAME=${{ env.DEV_IMAGE }}
         kubectl rollout status deploy/$PROJECT_NAME
         rm -rf ~/.kube

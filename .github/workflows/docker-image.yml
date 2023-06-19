@@ -10,8 +10,8 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   NAMESPACE: giveaway
-  TEST_IMAGE: $REGISTRY/$NAMESPACE/$IMAGE_NAME:${{ github.run_id }}-${{ github.run_attempt }}
-  DEV_IMAGE: $REGISTRY/$NAMESPACE/$IMAGE_NAME:dev
+  TEST_IMAGE: $REGISTRY/$NAMESPACE/$IMAGE_NAME:${{ github.sha }}
+  DEV_IMAGE: $REGISTRY/$NAMESPACE/$IMAGE_NAME:latest
 
 jobs:
   login:

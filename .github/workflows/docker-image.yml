@@ -59,13 +59,17 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+    
     - name: Login to CR
       run:  docker login ghcr.io -u ${{ github.actor }} -p  ${{ secrets.ACCESS_TOKEN }}
+    
     - name: Pull Docker image
       run: docker pull ${{ env.DEV_IMAGE }}
+    
     - name: Install kubectl
       run:  curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl" 
-    - name: Deploy
+    
+    - name: Config kubernetes
       env:
         KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
       run: |
@@ -73,6 +77,11 @@ jobs:
         mv ./kubectl ~/.kube && export PATH=$PATH:$HOME/.kube
         touch ~/.kube/config
         echo $KUBE_CONFIG | base64 --decode > ~/.kube/config
-        kubectl apply -f config/
-        kubectl set image deployment/{{ env.PROJECT_NAME }} auth=${{ env.DEV_IMAGE }}
-        rm -rf ~/.kube
+    
+    - name: Apply config
+      env:
+        KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+      run: kubectl apply -f config/
+    
+    - name: Deploy
+      run: kubectl set image deployment/{{ env.PROJECT_NAME }} auth=${{ env.DEV_IMAGE }}

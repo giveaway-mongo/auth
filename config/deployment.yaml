@@ -13,7 +13,7 @@ spec:
         app: auth-deployment-label
     spec:
       containers:
-        - name: auth-container
+        - name: auth
           image: ghcr.io/giveaway-mongo/auth:latest
           imagePullPolicy: IfNotPresent
           env:

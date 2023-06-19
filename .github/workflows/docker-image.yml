@@ -46,6 +46,7 @@ jobs:
         submodule: recursive
     - name: Build  
       run: | 
+        ls protos
         docker build -t ${{ env.TEST_IMAGE }} .
         docker tag ${{ env.TEST_IMAGE }} ${{ env.DEV_IMAGE }}
         docker push ${{ env.DEV_IMAGE }}

@@ -46,7 +46,7 @@ jobs:
         submodules: recursive
     
     - name: Login to CR
-      run: docker login -u aaa -p ${{ secrets.ACCESS_TOKEN }} ghcr.io
+      run: echo ${{ secrets.ACCESS_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin && echo ${{github.actor}}
       
     - name: Build  
       run: docker build -t ${{ env.TEST_IMAGE }} .

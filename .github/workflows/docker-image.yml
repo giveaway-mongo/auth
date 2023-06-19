@@ -14,17 +14,7 @@ env:
   DEV_IMAGE: $REGISTRY/$NAMESPACE/$IMAGE_NAME:latest
 
 jobs:
-  login:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Login to Github container registry
-      uses: docker/login-action@v2
-      with: 
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.ACCESS_TOKEN }} 
-      
-      
+       
 #   test:
 #     runs-on: ubuntu-latest
 #     steps:
@@ -37,7 +27,6 @@ jobs:
 #         docker-compose -f docker-compose.test.yaml run app 
 
   build:
-    needs: login
     runs-on: ubuntu-latest
     steps:
     - name: Submodule sync
@@ -46,7 +35,7 @@ jobs:
         submodules: recursive
     
     - name: Login to CR
-      run: echo ${{ secrets.ACCESS_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin && echo ${{github.actor}}
+      run: echo ${{ vars.ACCESS_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin && echo ${{github.actor}}
       
     - name: Build  
       run: docker build -t ${{ env.TEST_IMAGE }} .

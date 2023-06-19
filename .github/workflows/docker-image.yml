@@ -84,7 +84,4 @@ jobs:
       run: kubectl apply -f config/
     
     - name: Deploy 
-      run: |
-        echo deployment/$PROJECT_NAME
-        echo $DEV_IMAGE
-        kubectl set image deployment/$PROJECT_NAME $PROJECT_NAME=$DEV_IMAGE
+      run: kubectl set image deployment/$PROJECT_NAME $PROJECT_NAME=$DEV_IMAGE

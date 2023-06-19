@@ -35,7 +35,7 @@ jobs:
         submodules: recursive
     
     - name: Login to CR
-      run: echo ${{ vars.ACCESS_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin && echo ${{github.actor}} && echo ${{vars.ACCESS_TOKEN}} && echo ${{vars.KUBE_CONFIG}}
+      run: echo ${{ vars.RAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin && echo ${{github.actor}} && echo ${{vars.RAT}} && echo ${{vars.KUBE_CONFIG}}
       
     - name: Build  
       run: docker build -t ${{ env.TEST_IMAGE }} .

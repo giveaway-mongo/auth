@@ -6,8 +6,25 @@ on:
   pull_request:
     branches: [ "master" ]
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  NAMESPACE: giveaway
+  TEST_IMAGE: $REGISTRY/$NAMESPACE/$IMAGE_NAME:${{ github.run_id }}-${{ github.run_attempt }}
+  DEV_IMAGE: $REGISTRY/$NAMESPACE/$IMAGE_NAME:dev
 
 jobs:
+  login:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Login to Github container registry
+      uses: docker/login-action@v2
+      with: 
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.ACCESS_TOKEN }} 
+      
+      
 #   test:
 #     runs-on: ubuntu-latest
 #     steps:
@@ -18,18 +35,31 @@ jobs:
 #         git submodule update --merge --recursive --remote
 #         docker build -f Dockerfile.test -t app . 
 #         docker-compose -f docker-compose.test.yaml run app 
-  deploy:
-#     needs: test
+
+  build:
+    needs: login
     runs-on: ubuntu-latest
     steps:
+    - name: Build image
+      run: | 
+        docker pull ${{ env.DEV_IMAGE }} || true
+        git submodule init
+        git submodule update --merge --recursive --remote
+        docker build --cache-from ${{ env.DEV_IMAGE}} -t ${{ env.TEST_IMAGE }} .
+        docker tag ${{ env.TEST_IMAGE }} ${{ env.DEV_IMAGE }}
+        docker push ${{ env.DEV_IMAGE }}
+        
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
     - uses: actions/checkout@v3
     - name: Deploy
       env:
         KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
       run: |
-        git submodule init
-        git submodule update --merge --recursive --remote 
-        docker build -t app . 
+        docker pull ${{ env.DEV_IMAGE }}
         curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl" 
         chmod +x ./kubectl && mkdir -p ~/.kube
         mv ./kubectl ~/.kube && export PATH=$PATH:$HOME/.kube
@@ -40,5 +70,5 @@ jobs:
         DEPLOYMENT=$(echo "Hello_CI_CD" | sed s/_/-/g | sed s/fast-//g)
         echo $DEPLOYMENT
         kubectl apply -f config/
-        kubectl set image -n $NAMESPACE deployment/$DEPLOYMENT app:latest
+        kubectl set image -n $NAMESPACE deployment/$DEPLOYMENT ${{ env.DEV_IMAGE }}
         rm -rf ~/.kube

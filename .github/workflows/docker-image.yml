@@ -12,6 +12,7 @@ env:
   NAMESPACE: giveaway
   TEST_IMAGE: $REGISTRY/$IMAGE_NAME:${{ github.sha }}
   DEV_IMAGE: $REGISTRY/$IMAGE_NAME:latest
+  PROJECT_NAME: auth
 
 jobs:
        
@@ -70,12 +71,9 @@ jobs:
       run: |
         chmod +x ./kubectl && mkdir -p ~/.kube
         mv ./kubectl ~/.kube && export PATH=$PATH:$HOME/.kube
-        ls ~/.kube
         touch ~/.kube/config
         echo $KUBE_CONFIG | base64 --decode > ~/.kube/config
-        cat ~/.kube/config
-        DEPLOYMENT=$(echo "My_name_is_deployment_image" | sed s/_/-/g | sed s/fast-//g)
-        echo $DEPLOYMENT
         kubectl apply -f config/
-        kubectl set image -n ${{ env.NAMESPACE }} deployment/$DEPLOYMENT ${{ env.DEV_IMAGE }}
+        kubectl set image deployment/{{ env.PROJECT_NAME }} $PROJECT_NAME=${{ env.DEV_IMAGE }}
+        kubectl rollout status deploy/$PROJECT_NAME
         rm -rf ~/.kube

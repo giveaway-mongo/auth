@@ -45,12 +45,9 @@ jobs:
       
     - name: Build  
       run: docker build -t ${{ env.TEST_IMAGE }} .
-        
-    - name: Tag the image
-      run: docker tag ${{ env.TEST_IMAGE }} ${{ env.DEV_IMAGE }}
       
     - name: Push to github registry
-      run: docker push ${{ env.DEV_IMAGE }}
+      run: docker push ${{ env.TEST_IMAGE }}
         
   deploy:
     needs: build
@@ -63,8 +60,14 @@ jobs:
       run:  docker login ghcr.io -u ${{ github.actor }} -p  ${{ secrets.ACCESS_TOKEN }}
     
     - name: Pull Docker image
-      run: docker pull ${{ env.DEV_IMAGE }}
-    
+      run: docker pull ${{ env.TEST_IMAGE }}
+
+    - name: Tag the image
+      run: docker tag ${{ env.TEST_IMAGE }} ${{ env.DEV_IMAGE }}
+
+    - name: Push to github registry
+      run: docker push ${{ env.DEV_IMAGE }}
+
     - name: Install kubectl
       run:  curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl" 
     
@@ -83,7 +86,7 @@ jobs:
       run: kubectl apply -f config/
     
     - name: Deploy 
-      run: kubectl set image deployment/${{ env.PROJECT_NAME }} ${{ env.PROJECT_NAME }}=${{ env.DEV_IMAGE }}
+      run: kubectl set image deployment/${{ env.PROJECT_NAME }} ${{ env.PROJECT_NAME }}=${{ env.TEST_IMAGE }}
 
     - name: Logs
       run: echo deployment/${{ env.PROJECT_NAME }}

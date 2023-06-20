@@ -88,3 +88,6 @@ jobs:
 
     - name: Logs
       run: echo deployment/${{ env.PROJECT_NAME }}
+      
+    - name: Status
+      run: kubectl rollout status "deploy/$PROJECT_NAME"

@@ -10,8 +10,8 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   NAMESPACE: giveaway
-  TEST_IMAGE: "$REGISTRY/$IMAGE_NAME:${{ github.sha }}"
-  DEV_IMAGE: "$REGISTRY/$IMAGE_NAME:latest"
+  TEST_IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+  DEV_IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
   PROJECT_NAME: auth
 
 jobs:
@@ -84,10 +84,10 @@ jobs:
       run: kubectl apply -f config/
     
     - name: Deploy 
-      run: kubectl set image deployment/${{ env.PROJECT_NAME }} $PROJECT_NAME=${{ env.DEV_IMAGE }}
+      run: kubectl set image deployment/${{ env.PROJECT_NAME }} ${{ env.PROJECT_NAME }}=${{ env.DEV_IMAGE }}
 
     - name: Logs
       run: echo deployment/${{ env.PROJECT_NAME }}
       
     - name: Status
-      run: kubectl rollout status "deploy/$PROJECT_NAME"
+      run: kubectl rollout status deploy/${{ env.PROJECT_NAME }}

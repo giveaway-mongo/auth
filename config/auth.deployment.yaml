@@ -16,21 +16,9 @@ spec:
         - name: auth
           image: ghcr.io/giveaway-mongo/auth:latest
           imagePullPolicy: Always
-          env:
-            - name: RUN
-              value: 'production'
-            - name: HOST
-              value: 'localhost'
-            - name: PORT
-              value: '50051'
-            - name: DATABASE_URL
-              value: 'mongodb+srv://anvar_aka:mongodb@giveaway.axcgf0w.mongodb.net/test'
-            - name: RABBITMQ_HOST
-              value: 'localhost'
-            - name: RABBITMQ_USERNAME
-              value: 'guest'
-            - name: RABBITMQ_PASSWORD
-              value: 'guest'
+          envFrom:
+            - configMapRef:
+                name: auth-configmap
           ports:
             - containerPort: 8080
               name: auth-port

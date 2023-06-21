@@ -8,5 +8,5 @@ data:
   PORT: "50051"
   DATABASE_URL: 'mongodb+srv://anvar_aka:mongodb@giveaway.axcgf0w.mongodb.net/test'
   RABBITMQ_HOST: 'rabbitmq-service'
-  RABBITMQ_USERNAME: 'guest'
-  RABBITMQ_PASSWORD: 'guest'
+  RABBITMQ_USERNAME: 'user'
+  RABBITMQ_PASSWORD: 'bitnami'

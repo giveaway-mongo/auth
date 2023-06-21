@@ -83,7 +83,6 @@ jobs:
 
     - name: Apply config
       env:
-        KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
       run: kubectl apply -f config/
 
     - name: Deploy

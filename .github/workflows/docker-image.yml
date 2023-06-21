@@ -79,6 +79,7 @@ jobs:
         chmod +x ./kubectl && mkdir -p ~/.kube
         mv ./kubectl ~/.kube && export PATH=$PATH:$HOME/.kube
         touch ~/.kube/config
+        echo $KUBE_CONFIG | base64 --decode > ~/.kube/config
 
     - name: Apply config
       env:

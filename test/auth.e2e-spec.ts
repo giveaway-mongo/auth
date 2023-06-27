@@ -20,7 +20,7 @@ describe('AuthController (e2e)', () => {
 
   it('signs up', async () => {
     const user: SignUpRequest = {
-      email: 'some-email@test.com',
+      email: 'allgiveaway.uz@gmail.com',
       phoneNumber: '+9989888888888',
       fullName: 'Test Testerov',
       password: 'Test1234',
@@ -33,7 +33,7 @@ describe('AuthController (e2e)', () => {
 
   it('signs in', async () => {
     const user = {
-      email: 'test_email@gmail.com',
+      email: 'allgiveaway.uz@gmail.com',
       password: 'Test12345',
     };
 

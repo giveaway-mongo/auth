@@ -3,7 +3,7 @@ import { Prisma } from '@prisma/generated';
 export const users: Prisma.UserCreateInput[] = [
   {
     guid: '66e33c1b-938a-497b-89db-56532322ac49',
-    email: 'test_email@gmail.com',
+    email: 'allgiveaway.uz@gmail.com',
     password: '$2a$12$ew62ZAn6.b9FqXLhRpxu9O.PxAWuos4dPGRwc1MDA8D5YKVeTdLLS',
     // password: "Test12345"
     isActive: true,

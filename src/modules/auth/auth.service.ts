@@ -14,7 +14,7 @@ import * as bcrypt from 'bcrypt';
 import { generateGuid } from '@common/utils/generate-guid';
 import { PrismaService } from '@src/prisma/prisma.service';
 import { RpcException } from '@nestjs/microservices';
-import { sendEmail } from '@src/utils/sendgrid';
+import { sendEmail } from '@src/utils/mailjet';
 
 @Injectable()
 export class AuthService {
@@ -39,20 +39,13 @@ export class AuthService {
       throw new RpcException('Email already exists.');
     }
 
-    // send email
-
-    // await sendEmail({
-    //   to: 'anvarabdulsatarov@gmail.com',
-    //   from: 'a.abdulsatarov.b@gmail.com',
-    //   html: '<strong>hello</strong> world!',
-    //   subject: 'Some subject',
-    //   text: 'some text here',
-    // });
-
     await this.prisma.$transaction(async (tx) => {
-      const user = await tx.user.create({
+      const guid = generateGuid();
+      const verificationToken = generateGuid();
+
+      await tx.user.create({
         data: {
-          guid: generateGuid(),
+          guid,
           email,
           password: hashedPassword,
           fullName,
@@ -65,10 +58,18 @@ export class AuthService {
         data: {
           email,
           isActive: true,
-          guid: user.guid,
-          verificationToken: generateGuid(),
+          guid,
+          verificationToken,
         },
       });
+
+      const message = `<h1>This is your code: <a href="http://allgiveaway.uz/?guid=${guid}&verificationToken=${verificationToken}">Click here</a></h1>`;
+      const result = await sendEmail({
+        targetEmail: email,
+        subject: 'Verification code',
+        message,
+      });
+      console.log(JSON.stringify(result.body));
     });
 
     return { errors: null };

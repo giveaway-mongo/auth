@@ -20,5 +20,5 @@ spec:
             - configMapRef:
                 name: auth-configmap
           ports:
-            - containerPort: 8080
+            - containerPort: 50051
               name: auth-port

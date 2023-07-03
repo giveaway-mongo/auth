@@ -3,7 +3,7 @@ version: "3.9"
 services:
   app:
     build: .
-    image: '${TEST_IMAGE}'
+    image: '${TEST_IMAGE}' # make "app" to test locally
     ports:
       - '8080:50051'
     environment:

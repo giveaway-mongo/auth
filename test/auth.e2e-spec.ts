@@ -20,7 +20,7 @@ describe('AuthController (e2e)', () => {
 
   it('signs up', async () => {
     const user: SignUpRequest = {
-      email: 'allgiveaway.uz@gmail.com',
+      email: 'allgiveaway1.uz@gmail.com',
       phoneNumber: '+9989888888888',
       fullName: 'Test Testerov',
       password: 'Test1234',
@@ -94,6 +94,67 @@ describe('AuthController (e2e)', () => {
       await controller.signIn(user);
     } catch (errors) {
       expect(errors).toBeInstanceOf(Error);
+    }
+  });
+
+  it('Fully signs up', async () => {
+    const user: SignUpRequest = {
+      email: 'allgiveaway1.uz@gmail.com',
+      phoneNumber: '+9989888888888',
+      fullName: 'Test Testerov',
+      password: 'Test1234',
+    };
+
+    const signUpResponse = await controller.signUp(user);
+
+    const { guid, verificationToken, confirmationLink } = signUpResponse.result;
+
+    expect(guid).toBeDefined();
+    expect(verificationToken).toBeDefined();
+    expect(confirmationLink).toBeDefined();
+
+    const { errors } = await controller.verifyEmailToken({
+      guid,
+      verificationToken,
+    });
+
+    expect(errors).toBe(null);
+
+    const signInResponse = await controller.signIn({
+      email: user.email,
+      password: user.password,
+    });
+
+    const signInResult = signInResponse.result;
+
+    expect(signInResult.email).toEqual(user.email);
+    expect(signInResult.accessToken).toBeDefined();
+    expect(signInResult.refreshToken).toBeDefined();
+  });
+
+  it('Fails if no confirmation', async () => {
+    const user: SignUpRequest = {
+      email: 'allgiveaway1.uz@gmail.com',
+      phoneNumber: '+9989888888888',
+      fullName: 'Test Testerov',
+      password: 'Test1234',
+    };
+
+    const signUpResponse = await controller.signUp(user);
+
+    const { guid, verificationToken, confirmationLink } = signUpResponse.result;
+
+    expect(guid).toBeDefined();
+    expect(verificationToken).toBeDefined();
+    expect(confirmationLink).toBeDefined();
+
+    try {
+      await controller.signIn({
+        email: user.email,
+        password: user.password,
+      });
+    } catch (error) {
+      expect(error).toBeInstanceOf(Error);
     }
   });
 });

@@ -15,6 +15,7 @@ import { generateGuid } from '@common/utils/generate-guid';
 import { PrismaService } from '@src/prisma/prisma.service';
 import { RpcException } from '@nestjs/microservices';
 import { sendEmail } from '@src/utils/mailjet';
+import { isProductionEnvironment } from '@common/utils/environment';
 
 @Injectable()
 export class AuthService {
@@ -39,10 +40,11 @@ export class AuthService {
       throw new RpcException('Email already exists.');
     }
 
-    await this.prisma.$transaction(async (tx) => {
-      const guid = generateGuid();
-      const verificationToken = generateGuid();
+    const guid = generateGuid();
+    const verificationToken = generateGuid();
+    const confirmationLink = `https://allgiveaway.uz/?guid=${guid}&verificationToken=${verificationToken}`;
 
+    await this.prisma.$transaction(async (tx) => {
       await tx.user.create({
         data: {
           guid,
@@ -63,16 +65,22 @@ export class AuthService {
         },
       });
 
-      const message = `<h1>This is your code: <a href="http://allgiveaway.uz/?guid=${guid}&verificationToken=${verificationToken}">Click here</a></h1>`;
-      const result = await sendEmail({
-        targetEmail: email,
-        subject: 'Verification code',
-        message,
-      });
-      console.log(JSON.stringify(result.body));
+      if (isProductionEnvironment()) {
+        const message = `<h1>This is your code: <a href=${confirmationLink}>Click here</a></h1>`;
+
+        const result = await sendEmail({
+          targetEmail: email,
+          subject: 'Verification code',
+          message,
+        });
+
+        console.log(JSON.stringify(result.body));
+      }
     });
 
-    return { errors: null };
+    const result = { guid, verificationToken, confirmationLink };
+
+    return { result, errors: null };
   }
 
   async signIn(
@@ -81,7 +89,7 @@ export class AuthService {
     const { email, password } = signInRequest;
 
     const user = await this.prisma.user.findFirst({
-      where: { email },
+      where: { email, isActive: true, isDeleted: false },
     });
 
     if (!user) {
@@ -113,11 +121,13 @@ export class AuthService {
 
     const userConfirmationToken =
       await this.prisma.userConfirmationToken.findFirst({
-        where: { guid, verificationToken },
+        where: { guid, verificationToken, isActive: true },
       });
 
     if (!userConfirmationToken) {
-      throw new RpcException('No email with this code found.');
+      throw new RpcException(
+        'No email with this code found or the account was already confirmed.',
+      );
     }
 
     await this.prisma.$transaction(async (tx) => {

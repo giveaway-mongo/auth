@@ -18,9 +18,9 @@ export class AuthController {
   @Public()
   @GrpcMethod('AuthService', 'SignUp')
   async signUp(signUpRequest: SignUpRequest): Promise<SignUpResponse> {
-    const { errors } = await this.authService.signUp(signUpRequest);
+    const { result, errors } = await this.authService.signUp(signUpRequest);
 
-    return { errors };
+    return { result, errors };
   }
 
   @Public()

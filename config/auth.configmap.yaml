@@ -10,3 +10,5 @@ data:
   RABBITMQ_HOST: 'rabbitmq-service'
   RABBITMQ_USERNAME: 'user'
   RABBITMQ_PASSWORD: 'bitnami'
+  MJ_APIKEY_PUBLIC: 'd88e77c5d5fee90f75ab90c178cf93f3'
+  MJ_APIKEY_PRIVATE: '3d0a3a5a240cb6fb1264201ad4eaabd4'

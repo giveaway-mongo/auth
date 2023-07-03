@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const mailjet = require('node-mailjet').apiConnect(
-  process.env.MJ_APIKEY_PUBLIC,
-  process.env.MJ_APIKEY_PRIVATE,
+  process.env.MJ_APIKEY_PUBLIC || '',
+  process.env.MJ_APIKEY_PRIVATE || '',
   {
     config: {},
     options: {},

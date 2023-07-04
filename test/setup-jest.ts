@@ -7,10 +7,6 @@ import { promisify } from 'node:util';
 import { isTestEnvironment } from '@common/utils/environment';
 import { getRabbitMQOptions } from '@common/rabbitMQ/rabbitMQ-options';
 import { protoPath } from '@src/constants/proto-path';
-import {
-  RpcExceptionFilter,
-  ServerExceptionFilter,
-} from '@common/utils/rpc-exception.filter';
 
 const execAsync = promisify(exec);
 
@@ -32,9 +28,7 @@ global.beforeAll(async () => {
 
   app = await testingModule
     .createNestApplication()
-    .useGlobalPipes(new ValidationPipe({ transform: true }))
-    .useGlobalFilters(new ServerExceptionFilter())
-    .useGlobalFilters(new RpcExceptionFilter());
+    .useGlobalPipes(new ValidationPipe({ transform: true }));
 
   app.connectMicroservice(getGrpcTestingOptions('auth', protoPath), {
     inheritAppConfig: true,
@@ -46,7 +40,6 @@ global.beforeAll(async () => {
 
   await app.startAllMicroservices();
   await app.init();
-  await app.listen(3001);
 
   (global as any).app = app;
   (global as any).testingModule = testingModule;

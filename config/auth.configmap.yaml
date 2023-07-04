@@ -6,7 +6,7 @@ data:
   RUN: "production"
   HOST: "localhost"
   PORT: "50051"
-  DATABASE_URL: 'mongodb+srv://anvar_aka:mongodb@giveaway.axcgf0w.mongodb.net/test'
+  DATABASE_URL: 'mongodb+srv://anvar_aka:mongodb@giveaway.axcgf0w.mongodb.net/development'
   RABBITMQ_HOST: 'rabbitmq-service'
   RABBITMQ_USERNAME: 'user'
   RABBITMQ_PASSWORD: 'bitnami'

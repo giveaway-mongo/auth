@@ -6,7 +6,7 @@ import { ERROR_CODES, SERVER_ERROR } from '@common/constants/error';
 @Catch(RpcException)
 export class RpcExceptionFilter implements ExceptionFilter {
   catch(exception: RpcException, host: ArgumentsHost) {
-    console.log('my error');
+    console.log('my error', exception.getError());
     if (typeof exception.getError() === 'string') {
       return {
         errors: getErrors({

@@ -25,6 +25,7 @@ export class RedisCache {
 
   constructor() {
     console.log('redis constructor');
+    console.log(REDIS_URL, REDIS_USERNAME, REDIS_PASSWORD);
     this.client = createClient({
       url: REDIS_URL,
       username: REDIS_USERNAME,

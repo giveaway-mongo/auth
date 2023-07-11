@@ -16,7 +16,7 @@ services:
       RABBITMQ_PASSWORD: 'bitnami'
       MJ_APIKEY_PUBLIC: '${MJ_APIKEY_PUBLIC}'
       MJ_APIKEY_PRIVATE: '${MJ_APIKEY_PRIVATE}'
-      REDIS_URL: 'redis'
+      REDIS_URL: 'redis://redis'
       REDIS_USERNAME: ''
       REDIS_PASSWORD: ''
     depends_on:

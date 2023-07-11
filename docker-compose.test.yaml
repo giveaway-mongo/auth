@@ -16,6 +16,9 @@ services:
       RABBITMQ_PASSWORD: 'bitnami'
       MJ_APIKEY_PUBLIC: '${MJ_APIKEY_PUBLIC}'
       MJ_APIKEY_PRIVATE: '${MJ_APIKEY_PRIVATE}'
+      REDIS_URL: 'redis'
+      REDIS_USERNAME: ''
+      REDIS_PASSWORD: ''
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -95,10 +98,24 @@ services:
     networks:
       - app-tier
 
+  redis:
+    image: 'bitnami/redis:6.2.12'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    networks:
+      - app-tier
+    ports:
+      - '6379'
+    volumes:
+      - 'redis_data:/bitnami/redis/data'
+
+
 networks:
   app-tier:
     driver: bridge
 
 volumes:
   mongodb_master_data:
+    driver: local
+  redis_data:
     driver: local

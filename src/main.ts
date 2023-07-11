@@ -10,6 +10,7 @@ import {
   RpcExceptionFilter,
   ServerExceptionFilter,
 } from '@common/utils/rpc-exception.filter';
+import redisCache from '@common/redis/cache';
 
 protobufConfigure();
 
@@ -21,6 +22,8 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.useGlobalFilters(new ServerExceptionFilter());
   app.useGlobalFilters(new RpcExceptionFilter());
+
+  await redisCache.connect();
 
   app.connectMicroservice<MicroserviceOptions>(
     getGrpcOptions('auth', protoPath),

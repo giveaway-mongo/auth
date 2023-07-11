@@ -16,6 +16,8 @@ import { PrismaService } from '@src/prisma/prisma.service';
 import { RpcException } from '@nestjs/microservices';
 import { sendEmail } from '@src/utils/mailjet';
 import { isProductionEnvironment } from '@common/utils/environment';
+import redisCache from '@common/redis/cache';
+import { generateRandomToken } from '@src/utils/token';
 
 @Injectable()
 export class AuthService {
@@ -103,13 +105,15 @@ export class AuthService {
     }
 
     const payload = {
-      guid: user.guid,
+      userGuid: user.guid,
     };
 
-    const accessToken = this.jwtService.sign(payload);
+    const token = generateRandomToken();
+
+    await redisCache.saveAuth(user.guid, token, JSON.stringify(payload));
 
     return {
-      result: { email, accessToken, refreshToken: '' },
+      result: { email, accessToken: token, refreshToken: '' },
       errors: null,
     };
   }

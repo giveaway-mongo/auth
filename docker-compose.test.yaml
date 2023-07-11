@@ -29,6 +29,7 @@ services:
       - mongodb-secondary
       - mongodb-arbiter
       - rabbitmq
+      - redis
     networks:
       - app-tier
 

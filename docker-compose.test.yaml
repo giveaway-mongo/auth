@@ -3,7 +3,7 @@ version: "3.9"
 services:
   app:
     build: .
-    image: 'app' # make "app" to test locally, make '${TEST_IMAGE}' to test in github actions
+    image: '${TEST_IMAGE}' # make "app" to test locally, make '${TEST_IMAGE}' to test in github actions
     ports:
       - '8080:50051'
     environment:

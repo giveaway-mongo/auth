@@ -12,6 +12,6 @@ data:
   RABBITMQ_PASSWORD: 'bitnami'
   MJ_APIKEY_PUBLIC: 'd88e77c5d5fee90f75ab90c178cf93f3'
   MJ_APIKEY_PRIVATE: '3d0a3a5a240cb6fb1264201ad4eaabd4'
-  REDIS_URL: 'redis://redis:6379'
+  REDIS_URL: 'redis://redis-service:6379'
   REDIS_USERNAME: ''
   REDIS_PASSWORD: 'root123'

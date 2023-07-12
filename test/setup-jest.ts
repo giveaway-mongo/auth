@@ -31,8 +31,6 @@ global.beforeAll(async () => {
     .createNestApplication()
     .useGlobalPipes(new ValidationPipe({ transform: true }));
 
-  await redisCache.connect();
-
   app.connectMicroservice(getGrpcTestingOptions('auth', protoPath), {
     inheritAppConfig: true,
   });
@@ -42,8 +40,8 @@ global.beforeAll(async () => {
   });
 
   await app.startAllMicroservices();
-  await app.init();
 
+  await redisCache.connect();
   (global as any).app = app;
   (global as any).testingModule = testingModule;
 

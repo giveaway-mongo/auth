@@ -23,13 +23,16 @@ const getAuthKey = (guid: string, token: string) => {
 export class RedisCache {
   client: RedisClientType;
 
-  constructor() {
-    console.log('redis constructor');
+  async connect() {
     console.log(REDIS_URL, REDIS_USERNAME, REDIS_PASSWORD);
     this.client = createClient({
       url: REDIS_URL,
       username: REDIS_USERNAME,
       password: REDIS_PASSWORD,
+      database: 0,
+      socket: {
+        tls: false,
+      },
     });
 
     this.client.on('error', (error) => {
@@ -39,9 +42,7 @@ export class RedisCache {
     this.client.on('connect', () => {
       console.log('redis connected');
     });
-  }
 
-  async connect() {
     await this.client.connect();
   }
 

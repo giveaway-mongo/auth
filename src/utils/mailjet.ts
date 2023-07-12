@@ -1,12 +1,17 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const mailjet = require('node-mailjet').apiConnect(
-  process.env.MJ_APIKEY_PUBLIC || '',
-  process.env.MJ_APIKEY_PRIVATE || '',
-  {
-    config: {},
-    options: {},
-  },
-);
+import { isProductionEnvironment } from '@common/utils/environment';
+
+const mailjet = isProductionEnvironment()
+  ? // eslint-disable-next-line @typescript-eslint/no-var-requires
+    require('node-mailjet').apiConnect(
+      process.env.MJ_APIKEY_PUBLIC || '',
+      process.env.MJ_APIKEY_PRIVATE || '',
+      {
+        config: {},
+        options: {},
+      },
+    )
+  : {};
 
 type Request = {
   targetEmail: string;

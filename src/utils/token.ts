@@ -1,9 +1,5 @@
-import crypto from 'crypto';
+import { nanoid } from 'nanoid';
 
 export const generateRandomToken = () => {
-  const buffer = crypto.randomBytes(48);
-  return buffer.toString('hex');
+  return nanoid(48);
 };
-
-
-

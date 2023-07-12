@@ -40,6 +40,7 @@ specifiers:
   eslint-plugin-prettier: ^4.2.1
   jest: 29.3.1
   long: 4.0.0
+  nanoid: ^3.3.5
   node-mailjet: ^6.0.2
   nodemailer: ^6.9.3
   passport: ^0.6.0
@@ -83,6 +84,7 @@ dependencies:
   class-validator: 0.14.0
   dotenv-cli: 7.2.1
   long: 4.0.0
+  nanoid: 3.3.5
   node-mailjet: 6.0.2
   nodemailer: 6.9.3
   passport: 0.6.0
@@ -4503,6 +4505,12 @@ packages:
   /mute-stream/0.0.8:
     resolution: {integrity: sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==}
     dev: true
+
+  /nanoid/3.3.5:
+    resolution: {integrity: sha512-nvgaJGpIANf4+VWJAaDGORQyMzhFkze8aXVdrHq+BaSvzfpOuponEysaVFKV/0Bca5V+3SBiDvRabEPbpalEBg==}
+    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
+    hasBin: true
+    dev: false
 
   /natural-compare-lite/1.4.0:
     resolution: {integrity: sha512-Tj+HTDSJJKaZnfiuw+iaF9skdPpTo2GtEly5JHnWV/hfv2Qj/9RKsGISQtLh2ox3l5EAGw487hnBee0sIJ6v2g==}

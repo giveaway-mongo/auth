@@ -19,10 +19,10 @@
     "test": "jest",
     "protogen": "bash scripts/protogen.sh",
     "mongo:start": "docker-compose -f docker-compose.mongo.yaml up",
-    "test:e2e": "dotenv -e env/.env.test -- jest --config ./test/jest-e2e.json",
-    "test:docker-e2e": "dotenv -e env/.env.docker-test -- jest --config ./test/jest-e2e.json",
+    "test:e2e": "dotenv -e env/.env.test -- jest --config ./test/jest-e2e.json --forceExit",
+    "test:docker-e2e": "dotenv -e env/.env.docker-test -- jest --config ./test/jest-e2e.json --forceExit",
     "test:db-push": "dotenv -e env/.env.test -- npx prisma db push --force-reset",
-    "docker:build": "docker build -f Dockerfile.test -t app . && docker-compose -f docker-compose.test.yaml run app"
+    "docker:test": "docker build -f Dockerfile.test -t app . && docker-compose -f docker-compose.test.yaml run app"
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.8.14",
@@ -44,6 +44,7 @@
     "class-validator": "^0.14.0",
     "dotenv-cli": "^7.2.1",
     "long": "4.0.0",
+    "nanoid": "^3.3.5",
     "node-mailjet": "^6.0.2",
     "nodemailer": "^6.9.3",
     "passport": "^0.6.0",

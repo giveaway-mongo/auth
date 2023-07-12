@@ -3,7 +3,7 @@ version: "3.9"
 services:
   app:
     build: .
-    image: '${TEST_IMAGE}' # make "app" to test locally
+    image: 'app' # make "app" to test locally, make '${TEST_IMAGE}' to test in github actions
     ports:
       - '8080:50051'
     environment:
@@ -24,6 +24,8 @@ services:
         condition: service_healthy
       mongodb-primary:
         condition: service_started
+      redis:
+        condition: service_healthy
     links:
       - mongodb-primary
       - mongodb-secondary
@@ -105,6 +107,8 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
     networks:
       - app-tier
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
     ports:
       - '6379'
     volumes:

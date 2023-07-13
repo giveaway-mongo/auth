@@ -108,7 +108,7 @@ export class AuthService {
       role: ROLES.USER,
     };
 
-    const token = generateRandomToken();
+    const token = `${generateRandomToken()}${user.guid}`;
 
     await redisCache.saveAuth(user.guid, token, JSON.stringify(payload));
 

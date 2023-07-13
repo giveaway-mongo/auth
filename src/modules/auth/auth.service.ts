@@ -17,6 +17,7 @@ import { sendEmail } from '@src/utils/mailjet';
 import { isProductionEnvironment } from '@common/utils/environment';
 import redisCache from '@common/redis/cache';
 import { generateRandomToken } from '@src/utils/token';
+import { ROLES } from '@common/constants/roles'
 
 @Injectable()
 export class AuthService {
@@ -104,6 +105,7 @@ export class AuthService {
 
     const payload = {
       userGuid: user.guid,
+      role: ROLES.USER,
     };
 
     const token = generateRandomToken();

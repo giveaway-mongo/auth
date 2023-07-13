@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { UsersService } from '@src/modules/users/users.service';
-import { JwtService } from '@nestjs/jwt';
 import {
   SignInRequest,
   SignInResponse,
@@ -23,7 +22,6 @@ import { generateRandomToken } from '@src/utils/token';
 export class AuthService {
   constructor(
     private usersService: UsersService,
-    private jwtService: JwtService,
     private prisma: PrismaService,
   ) {}
 

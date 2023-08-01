@@ -1,27 +1,64 @@
 import { Injectable } from '@nestjs/common';
-
-type User = {
-  userId: number;
-  username: string;
-  password: string;
-};
+import { PrismaService } from '@src/prisma/prisma.service';
+import { WithError } from '@common/types/utils';
+import * as bcrypt from 'bcrypt';
+import { UserCreateResponse, UserCreateInput } from './dto';
+import { RpcException } from '@nestjs/microservices';
+import { generateGuid } from '@common/utils/generate-guid';
 
 @Injectable()
 export class UsersService {
-  private readonly users = [
-    {
-      userId: 1,
-      username: 'john',
-      password: 'changeme',
-    },
-    {
-      userId: 2,
-      username: 'maria',
-      password: 'guess',
-    },
-  ];
+  constructor(private readonly prisma: PrismaService) {}
 
-  async findOne(username: string): Promise<User | undefined> {
-    return this.users.find((user) => user.username === username);
+  async create(
+    createUserDto: UserCreateInput,
+  ): Promise<WithError<UserCreateResponse>> {
+    const { fullName, password, role, phoneNumber, email } = createUserDto;
+
+    const existingUser = await this.prisma.user.findFirst({
+      where: { OR: [{ email }, { phoneNumber }] },
+    });
+
+    if (existingUser) {
+      const isSameEmail = existingUser?.email === email;
+      if (isSameEmail) {
+        throw new RpcException('User with provided email already exists.');
+      }
+
+      const isSamePhoneNumber = existingUser?.phoneNumber === phoneNumber;
+      if (isSamePhoneNumber) {
+        throw new RpcException(
+          'User with provided phone number already exists.',
+        );
+      }
+    }
+
+    const userGuid = generateGuid();
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    const user = await this.prisma.user.create({
+      data: {
+        guid: userGuid,
+        password: hashedPassword,
+        fullName,
+        phoneNumber,
+        email,
+        isActive: false,
+      },
+    });
+
+    const result: UserCreateResponse['result'] = {
+      email: user.email,
+      fullName: user.fullName,
+      phoneNumber: user.phoneNumber,
+      // TODO: figure out how to get role from database
+      role: role,
+      // TODO: avatar exists in DTO but not in database
+      avatar: null,
+    };
+
+    return { result, errors: null };
   }
+
+  async update(): Promise<{}> {}
 }

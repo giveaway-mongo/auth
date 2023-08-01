@@ -18,17 +18,29 @@ describe('AuthController (e2e)', () => {
     await applyFixtures(userConfirmationTokens, prisma.userConfirmationToken);
   });
 
-  it('signs up', async () => {
-    const user: SignUpRequest = {
-      email: 'allgiveaway1.uz@gmail.com',
-      phoneNumber: '+9989888888888',
-      fullName: 'Test Testerov',
-      password: 'Test1234',
-    };
+  describe('Sign up', function () {
+    it('should return valid sign up response', async () => {
+      const user: SignUpRequest = {
+        email: 'allgiveaway1.uz@gmail.com',
+        phoneNumber: '+9989888888888',
+        fullName: 'Test Testerov',
+        password: 'Test1234',
+      };
 
-    const response = await controller.signUp(user);
+      const response = await controller.signUp(user);
 
-    expect(response.errors).toEqual(null);
+      expect(response.errors).toEqual(null);
+      expect(response.result.guid).toBeDefined();
+      expect(response.result.verificationToken).toBeDefined();
+    });
+
+    it('should throw error when user with the same email has been already registered', function () {
+      // TODO: implement
+    });
+
+    it('should throw error when user with the same phone number has been already registered', function () {
+      // TODO: implement
+    });
   });
 
   it('signs in', async () => {

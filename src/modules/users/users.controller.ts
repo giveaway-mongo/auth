@@ -1,7 +1,14 @@
 import { Controller } from '@nestjs/common';
 import { UsersService } from '@src/modules/users/users.service';
 import { GrpcMethod, Payload } from '@nestjs/microservices';
-import { UserCreateInput, UserCreateResponse, UserUpdateResponse } from './dto';
+import {
+  UserCreateInput,
+  UserCreateResponse,
+  UserUpdateResponse,
+  UserListRequest,
+  UserListResponse,
+  UserUpdateInput,
+} from './dto';
 
 @Controller()
 export class UsersController {
@@ -21,7 +28,7 @@ export class UsersController {
 
   @GrpcMethod('UsersService', 'UpdateUser')
   async update(
-    @Payload() updateUserInput: UserCreateInput,
+    @Payload() updateUserInput: UserUpdateInput,
   ): Promise<UserUpdateResponse> {
     const { result, errors } = await this.usersService.update(updateUserInput);
 
@@ -31,23 +38,34 @@ export class UsersController {
     };
   }
 
-  @GrpcMethod('UsersService', 'DeleteUser')
-  async delete(): Promise<{}> {
-    const { result, errors } = await this.usersService.delete();
+  @GrpcMethod('UsersService', 'ListUser')
+  async list(listInput: UserListRequest): Promise<UserListResponse> {
+    const { results, errors, count } = await this.usersService.list(listInput);
 
     return {
-      result,
+      results,
+      count,
       errors,
     };
   }
 
-  @GrpcMethod('UsersService', 'GetUserById')
-  async getById(): Promise<{}> {
-    const { result, errors } = await this.usersService.getById();
-
-    return {
-      result,
-      errors,
-    };
-  }
+  // @GrpcMethod('UsersService', 'DeleteUser')
+  // async delete(): Promise<{}> {
+  //   const { result, errors } = await this.usersService.delete();
+  //
+  //   return {
+  //     result,
+  //     errors,
+  //   };
+  // }
+  //
+  // @GrpcMethod('UsersService', 'GetUserById')
+  // async getById(): Promise<{}> {
+  //   const { result, errors } = await this.usersService.getById();
+  //
+  //   return {
+  //     result,
+  //     errors,
+  //   };
+  // }
 }

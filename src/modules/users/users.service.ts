@@ -7,9 +7,14 @@ import {
   UserCreateInput,
   UserUpdateInput,
   UserUpdateResponse,
+  UserListRequest,
+  UserListResponse,
+  UserDto,
 } from './dto';
 import { RpcException } from '@nestjs/microservices';
 import { generateGuid } from '@common/utils/generate-guid';
+import { getListOptions } from '@common/utils/list-params';
+import { Prisma } from '@prisma/generated';
 
 @Injectable()
 export class UsersService {
@@ -52,7 +57,7 @@ export class UsersService {
       },
     });
 
-    const result: UserCreateResponse['result'] = {
+    const result: UserDto = {
       email: user.email,
       fullName: user.fullName,
       phoneNumber: user.phoneNumber,
@@ -128,15 +133,50 @@ export class UsersService {
       },
     });
 
+    const transformedUser: UserDto = {
+      email: updatedUser.email,
+      fullName: updatedUser.fullName,
+      phoneNumber: updatedUser.phoneNumber,
+      role: '', // TODO: figure out how to get role from database,
+      avatar: '', // TODO: avatar exists in DTO but not in database
+    };
+
     return {
-      result: {
-        email: updatedUser.email,
-        fullName: updatedUser.fullName,
-        phoneNumber: updatedUser.phoneNumber,
-        role: '', // TODO: figure out how to get role from database,
-        avatar: '', // TODO: avatar exists in DTO but not in database
-      },
+      result: transformedUser,
       errors: null,
+    };
+  }
+
+  async list(listInput: UserListRequest): Promise<WithError<UserListResponse>> {
+    const { where, skip, take, orderBy } = getListOptions<
+      Prisma.UserWhereInput,
+      Prisma.UserOrderByWithRelationInput
+    >(listInput?.options);
+
+    const [count, users] = await this.prisma.$transaction([
+      this.prisma.user.count(),
+      this.prisma.user.findMany({
+        skip,
+        where,
+        orderBy,
+        take,
+      }),
+    ]);
+
+    const transformedUsers = users.map<UserDto>((user) => {
+      return {
+        email: user.email,
+        fullName: user.fullName,
+        phoneNumber: user.phoneNumber,
+        role: '',
+        avatar: '',
+      };
+    });
+
+    return {
+      results: transformedUsers,
+      errors: null,
+      count,
     };
   }
 }

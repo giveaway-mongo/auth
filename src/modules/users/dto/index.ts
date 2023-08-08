@@ -1,3 +1,5 @@
 export { UserCreateInput } from './create-user.dto';
 
-export { UserCreateResponse } from '@protogen/user/user';
+export { UserUpdateInput } from './update-user.dto';
+
+export { UserCreateResponse, UserUpdateResponse } from '@protogen/user/user';

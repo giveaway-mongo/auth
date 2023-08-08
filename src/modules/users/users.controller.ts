@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { UsersService } from '@src/modules/users/users.service';
 import { GrpcMethod, Payload } from '@nestjs/microservices';
-import { UserCreateInput, UserCreateResponse } from './dto';
+import { UserCreateInput, UserCreateResponse, UserUpdateResponse } from './dto';
 
 @Controller()
 export class UsersController {
@@ -20,8 +20,10 @@ export class UsersController {
   }
 
   @GrpcMethod('UsersService', 'UpdateUser')
-  async update(): Promise<{}> {
-    const { result, errors } = await this.usersService.update();
+  async update(
+    @Payload() updateUserInput: UserCreateInput,
+  ): Promise<UserUpdateResponse> {
+    const { result, errors } = await this.usersService.update(updateUserInput);
 
     return {
       result,

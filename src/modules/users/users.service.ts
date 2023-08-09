@@ -10,6 +10,8 @@ import {
   UserListRequest,
   UserListResponse,
   UserDto,
+  UserDetailRequest,
+  UserDetailResponse,
 } from './dto';
 import { RpcException } from '@nestjs/microservices';
 import { generateGuid } from '@common/utils/generate-guid';
@@ -177,6 +179,37 @@ export class UsersService {
       results: transformedUsers,
       errors: null,
       count,
+    };
+  }
+
+  async detail(
+    userDetailRequest: UserDetailRequest,
+  ): Promise<WithError<UserDetailResponse>> {
+    const { guid } = userDetailRequest;
+
+    let userDto: UserDto = null;
+
+    try {
+      const user = await this.prisma.user.findUniqueOrThrow({
+        where: {
+          guid,
+        },
+      });
+
+      userDto = {
+        email: user.email,
+        fullName: user.fullName,
+        phoneNumber: user.phoneNumber,
+        role: '',
+        avatar: '',
+      };
+    } catch (e) {
+      throw new RpcException('User not found.');
+    }
+
+    return {
+      result: userDto,
+      errors: null,
     };
   }
 }

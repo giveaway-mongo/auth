@@ -8,6 +8,8 @@ import {
   UserListRequest,
   UserListResponse,
   UserUpdateInput,
+  UserDetailRequest,
+  UserDetailResponse,
 } from './dto';
 
 @Controller()
@@ -49,23 +51,17 @@ export class UsersController {
     };
   }
 
-  // @GrpcMethod('UsersService', 'DeleteUser')
-  // async delete(): Promise<{}> {
-  //   const { result, errors } = await this.usersService.delete();
-  //
-  //   return {
-  //     result,
-  //     errors,
-  //   };
-  // }
-  //
-  // @GrpcMethod('UsersService', 'GetUserById')
-  // async getById(): Promise<{}> {
-  //   const { result, errors } = await this.usersService.getById();
-  //
-  //   return {
-  //     result,
-  //     errors,
-  //   };
-  // }
+  @GrpcMethod('UsersService', 'DetailUser')
+  async detail(
+    detailUserRequest: UserDetailRequest,
+  ): Promise<UserDetailResponse> {
+    const { result, errors } = await this.usersService.detail(
+      detailUserRequest,
+    );
+
+    return {
+      result,
+      errors,
+    };
+  }
 }

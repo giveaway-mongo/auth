@@ -8,4 +8,6 @@ export {
   UserListRequest,
   UserListResponse,
   User as UserDto,
+  UserDetailRequest,
+  UserDetailResponse,
 } from '@protogen/user/user';

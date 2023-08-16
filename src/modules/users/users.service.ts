@@ -60,6 +60,7 @@ export class UsersService {
     });
 
     const result: UserDto = {
+      // TODO: add guid to DTO
       email: user.email,
       fullName: user.fullName,
       phoneNumber: user.phoneNumber,

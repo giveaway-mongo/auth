@@ -1,5 +1,11 @@
 import { UserCreateRequest } from '@protogen/user/user';
-import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsPhoneNumber,
+  IsString,
+  IsUrl,
+} from 'class-validator';
 
 export class UserCreateInput implements UserCreateRequest {
   @IsString()
@@ -22,4 +28,8 @@ export class UserCreateInput implements UserCreateRequest {
 
   // TODO: figure out how to get role from database
   role: string;
+
+  @IsString()
+  @IsUrl()
+  avatar: string;
 }

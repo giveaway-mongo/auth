@@ -1,8 +1,16 @@
 import { UserUpdateRequest } from '@protogen/user/user';
-import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsPhoneNumber,
+  IsString,
+  IsUrl,
+} from 'class-validator';
 
 export class UserUpdateInput implements UserUpdateRequest {
-  // TODO: Add guid field into DTO
+  @IsNotEmpty()
+  @IsString()
+  guid: string;
 
   @IsString()
   @IsNotEmpty()
@@ -18,5 +26,7 @@ export class UserUpdateInput implements UserUpdateRequest {
   @IsNotEmpty()
   phoneNumber: string;
 
-  // TODO: figure out should avatar field exist here or not
+  @IsString()
+  @IsUrl()
+  avatar: string;
 }

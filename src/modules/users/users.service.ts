@@ -83,35 +83,21 @@ export class UsersService {
       // guid, TODO: implement guid in DTO
     } = updateUserDto;
 
-    // handle email duplicates
-    const userWithSameEmail = await this.prisma.user.findFirst({
+    // handle email or phone number duplicates
+    const potentialUserDuplicate = await this.prisma.user.findFirst({
       where: {
-        email: {
-          equals: email,
-        },
+        OR: [{ email }, { phoneNumber }],
         guid: {
           not: '', // TODO: implement guid in DTO
         },
       },
     });
 
-    if (userWithSameEmail) {
+    if (potentialUserDuplicate.email === email) {
       throw new RpcException('User with provided email already exists.');
     }
 
-    // handle phone number duplicates
-    const userWithSamePhoneNumber = await this.prisma.user.findFirst({
-      where: {
-        phoneNumber: {
-          equals: phoneNumber,
-        },
-        guid: {
-          not: '', // TODO: implement guid in DTO
-        },
-      },
-    });
-
-    if (userWithSamePhoneNumber) {
+    if (potentialUserDuplicate.phoneNumber === phoneNumber) {
       throw new RpcException('User with provided phone number already exists.');
     }
 

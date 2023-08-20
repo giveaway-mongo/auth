@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '@src/prisma/prisma.service';
 import { WithError } from '@common/types/utils';
 import * as bcrypt from 'bcrypt';
@@ -13,14 +13,18 @@ import {
   UserDetailRequest,
   UserDetailResponse,
 } from './dto';
-import { RpcException } from '@nestjs/microservices';
+import { ClientRMQ, RpcException } from '@nestjs/microservices';
 import { generateGuid } from '@common/utils/generate-guid';
 import { getListOptions } from '@common/utils/list-params';
 import { Prisma } from '@prisma/generated';
+import { UserEvent } from '@src/modules/users/dto/broker.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject('users-service') private readonly client: ClientRMQ,
+  ) {}
 
   async create(
     createUserDto: UserCreateInput,
@@ -58,6 +62,23 @@ export class UsersService {
         email,
         isActive: false,
       },
+    });
+
+    this.client.emit<string, UserEvent>('user.user.add', {
+      guid: user.guid,
+      email: user.email,
+      fullName: user.fullName,
+      phoneNumber: user.phoneNumber,
+      // TODO: figure out how to get role from database
+      role: null,
+      // TODO: figure out correctness of this way of converting data to string
+      createdAt: user.createdAt.toString(),
+      // TODO: figure out correctness of this way of converting data to string
+      updatedAt: user.updatedAt.toString(),
+      isActive: user.isActive,
+      avatarUrl: null,
+      isDeleted: user.isDeleted,
+      bidsAvailable: Number(user.bidsAvailable),
     });
 
     const result: UserDto = {
@@ -116,6 +137,23 @@ export class UsersService {
       where: {
         guid: guid,
       },
+    });
+
+    this.client.emit<string, UserEvent>('user.user.update', {
+      guid: updatedUser.guid,
+      email: updatedUser.email,
+      fullName: updatedUser.fullName,
+      phoneNumber: updatedUser.phoneNumber,
+      // TODO: figure out how to get role from database
+      role: null,
+      // TODO: figure out correctness of this way of converting data to string
+      createdAt: updatedUser.createdAt.toString(),
+      // TODO: figure out correctness of this way of converting data to string
+      updatedAt: updatedUser.updatedAt.toString(),
+      isActive: updatedUser.isActive,
+      avatarUrl: null,
+      isDeleted: updatedUser.isDeleted,
+      bidsAvailable: Number(updatedUser.bidsAvailable),
     });
 
     const transformedUser: UserDto = {

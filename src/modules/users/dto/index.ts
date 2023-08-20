@@ -11,3 +11,5 @@ export {
   UserDetailRequest,
   UserDetailResponse,
 } from '@protogen/user/user';
+
+export * from './broker.dto';

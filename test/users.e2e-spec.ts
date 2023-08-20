@@ -3,7 +3,12 @@ import { UsersController } from '@src/modules/users/users.controller';
 import { applyFixtures } from './utils/applyFixtures';
 import prisma from './client';
 import { getUser, users } from './fixtures/users';
-import { UserCreateInput, UserUpdateInput } from '@src/modules/users/dto';
+import {
+  UserCreateInput,
+  UserDetailRequest,
+  UserListRequest,
+  UserUpdateInput,
+} from '@src/modules/users/dto';
 import { RpcException } from '@nestjs/microservices';
 
 describe('UsersController (e2e)', function () {
@@ -31,6 +36,7 @@ describe('UsersController (e2e)', function () {
         fullName: userMock.fullName,
         phoneNumber: userMock.phoneNumber,
         role: '',
+        avatar: null,
       };
       const { result, errors } = await controller.create(input);
 
@@ -54,6 +60,7 @@ describe('UsersController (e2e)', function () {
         fullName: userToCreate.fullName,
         phoneNumber: userToCreate.phoneNumber,
         role: '',
+        avatar: null,
       };
 
       expect(() => {
@@ -77,6 +84,7 @@ describe('UsersController (e2e)', function () {
         fullName: userToCreate.fullName,
         phoneNumber: userToCreate.phoneNumber,
         role: '',
+        avatar: null,
       };
 
       expect(() => {
@@ -90,15 +98,17 @@ describe('UsersController (e2e)', function () {
       const existingUserMock = users[0];
 
       const input: UserUpdateInput = {
+        guid: existingUserMock.guid,
         email: existingUserMock.email,
         fullName: 'Updated User Fullname',
         phoneNumber: existingUserMock.phoneNumber,
+        avatar: null,
       };
 
       const { result, errors } = await controller.update(input);
 
       expect(errors).toBeNull();
-      // expect(result.guid).toBe(existingUserMock.guid)
+      expect(result.guid).toBe(existingUserMock.guid);
       expect(result.email).toBe(existingUserMock.email);
       expect(result.fullName).toBe(input.fullName);
     });
@@ -108,9 +118,11 @@ describe('UsersController (e2e)', function () {
       const userWithSameEmail = users[1];
 
       const input: UserUpdateInput = {
+        guid: existingUserMock.guid,
         email: userWithSameEmail.email,
         fullName: 'Updated User Fullname',
         phoneNumber: existingUserMock.phoneNumber,
+        avatar: null,
       };
 
       expect(() => {
@@ -123,9 +135,11 @@ describe('UsersController (e2e)', function () {
       const userWithSamePhoneNumber = users[1];
 
       const input: UserUpdateInput = {
+        guid: existingUserMock.guid,
         email: existingUserMock.email,
         fullName: 'Updated User Fullname',
         phoneNumber: userWithSamePhoneNumber.phoneNumber,
+        avatar: null,
       };
 
       expect(() => {
@@ -140,13 +154,81 @@ describe('UsersController (e2e)', function () {
       });
 
       const input: UserUpdateInput = {
+        guid: userWithNoMatchInDb.guid,
         email: userWithNoMatchInDb.email,
         fullName: userWithNoMatchInDb.fullName,
         phoneNumber: userWithNoMatchInDb.phoneNumber,
+        avatar: null,
       };
 
       expect(() => {
         return controller.update(input);
+      }).toThrow(RpcException);
+    });
+  });
+
+  describe('Get users list', function () {
+    it('should return valid response with users', async function () {
+      const listInput: UserListRequest = {
+        options: {
+          filter: null,
+          limit: null,
+          ordering: null,
+          page: 1,
+          search: null,
+        },
+      };
+
+      const { results, count } = await controller.list(listInput);
+
+      const expectedUsersCount = users.length;
+      expect(results.length).toBe(expectedUsersCount);
+      expect(count).toBe(expectedUsersCount);
+    });
+
+    it('should return valid response with users when limit is set', async function () {
+      const listInput: UserListRequest = {
+        options: {
+          filter: null,
+          limit: 1,
+          ordering: null,
+          page: 1,
+          search: null,
+        },
+      };
+
+      const { results, count } = await controller.list(listInput);
+
+      const expectedUsersCount = 1;
+      expect(results.length).toBe(expectedUsersCount);
+      expect(count).toBe(expectedUsersCount);
+    });
+  });
+
+  describe('Get user details', function () {
+    it('should return valid response with details of user', async function () {
+      const existingUserMock = users[0];
+      const detailRequest: UserDetailRequest = {
+        guid: existingUserMock.guid,
+      };
+
+      const { result } = await controller.detail(detailRequest);
+
+      expect(result.guid).toBe(existingUserMock.guid);
+      expect(result.email).toBe(existingUserMock.email);
+      expect(result.fullName).toBe(existingUserMock.fullName);
+    });
+
+    it('should throw error when there is no user with such guid', function () {
+      const userWithNoMatchInDb = getUser({
+        guid: 'af00000f-0000-1111-0000-e42e00005e7b',
+      });
+      const detailRequest: UserDetailRequest = {
+        guid: userWithNoMatchInDb.guid,
+      };
+
+      expect(() => {
+        return controller.detail(detailRequest);
       }).toThrow(RpcException);
     });
   });

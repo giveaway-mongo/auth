@@ -5,7 +5,8 @@ import prisma from './client';
 import { getUser, users } from './fixtures/users';
 import {
   UserCreateInput,
-  UserDetailRequest,
+  UserDeleteInput,
+  UserDetailInput,
   UserListRequest,
   UserUpdateInput,
 } from '@src/modules/users/dto';
@@ -88,7 +89,7 @@ describe('UsersController (e2e)', function () {
       };
 
       expect(() => {
-        controller.create(userInput);
+        return controller.create(userInput);
       }).toThrow(RpcException);
     });
   });
@@ -179,9 +180,10 @@ describe('UsersController (e2e)', function () {
         },
       };
 
-      const { results, count } = await controller.list(listInput);
+      const { results, count, errors } = await controller.list(listInput);
 
       const expectedUsersCount = users.length;
+      expect(errors).toBeNull();
       expect(results.length).toBe(expectedUsersCount);
       expect(count).toBe(expectedUsersCount);
     });
@@ -197,9 +199,10 @@ describe('UsersController (e2e)', function () {
         },
       };
 
-      const { results, count } = await controller.list(listInput);
+      const { results, count, errors } = await controller.list(listInput);
 
       const expectedUsersCount = 1;
+      expect(errors).toBeNull();
       expect(results.length).toBe(expectedUsersCount);
       expect(count).toBe(expectedUsersCount);
     });
@@ -208,7 +211,7 @@ describe('UsersController (e2e)', function () {
   describe('Get user details', function () {
     it('should return valid response with details of user', async function () {
       const existingUserMock = users[0];
-      const detailRequest: UserDetailRequest = {
+      const detailRequest: UserDetailInput = {
         guid: existingUserMock.guid,
       };
 
@@ -223,12 +226,40 @@ describe('UsersController (e2e)', function () {
       const userWithNoMatchInDb = getUser({
         guid: 'af00000f-0000-1111-0000-e42e00005e7b',
       });
-      const detailRequest: UserDetailRequest = {
+      const detailRequest: UserDetailInput = {
         guid: userWithNoMatchInDb.guid,
       };
 
       expect(() => {
         return controller.detail(detailRequest);
+      }).toThrow(RpcException);
+    });
+  });
+
+  describe('Delete user', function () {
+    it('should return valid response with deleted user', async function () {
+      const existingUserMock = users[0];
+      const deleteRequest: UserDeleteInput = {
+        guid: existingUserMock.guid,
+      };
+
+      const { result, errors } = await controller.delete(deleteRequest);
+
+      expect(errors).toBeNull();
+      expect(result.guid).toBe(existingUserMock.guid);
+    });
+
+    it('should throw error when there is no user to delete', function () {
+      const notExistingUser = getUser({
+        guid: 'af00000f-0000-0000-0000-e42e00005e7b',
+        email: 'notexisting@gmail.com',
+      });
+      const deleteRequest: UserDeleteInput = {
+        guid: notExistingUser.guid,
+      };
+
+      expect(() => {
+        return controller.delete(deleteRequest);
       }).toThrow(RpcException);
     });
   });

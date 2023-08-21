@@ -10,8 +10,10 @@ import {
   UserListRequest,
   UserListResponse,
   UserDto,
-  UserDetailRequest,
+  UserDetailInput,
   UserDetailResponse,
+  UserDeleteInput,
+  UserDeleteResponse,
 } from './dto';
 import { ClientRMQ, RpcException } from '@nestjs/microservices';
 import { generateGuid } from '@common/utils/generate-guid';
@@ -206,7 +208,7 @@ export class UsersService {
   }
 
   async detail(
-    userDetailRequest: UserDetailRequest,
+    userDetailRequest: UserDetailInput,
   ): Promise<WithError<UserDetailResponse>> {
     const { guid } = userDetailRequest;
 
@@ -233,6 +235,38 @@ export class UsersService {
 
     return {
       result: userDto,
+      errors: null,
+    };
+  }
+
+  async delete(
+    userDeleteRequest: UserDeleteInput,
+  ): Promise<WithError<UserDeleteResponse>> {
+    const { guid } = userDeleteRequest;
+
+    let deletedUserDto: UserDto = null;
+
+    try {
+      const deletedUser = await this.prisma.user.delete({
+        where: {
+          guid,
+        },
+      });
+
+      deletedUserDto = {
+        guid: deletedUser.guid,
+        email: deletedUser.email,
+        fullName: deletedUser.fullName,
+        phoneNumber: deletedUser.phoneNumber,
+        role: null,
+        avatar: null,
+      };
+    } catch (e) {
+      throw new RpcException('User not found.');
+    }
+
+    return {
+      result: deletedUserDto,
       errors: null,
     };
   }

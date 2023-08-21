@@ -8,8 +8,10 @@ import {
   UserListRequest,
   UserListResponse,
   UserUpdateInput,
-  UserDetailRequest,
+  UserDeleteInput,
   UserDetailResponse,
+  UserDeleteResponse,
+  UserDetailInput,
 } from './dto';
 
 @Controller()
@@ -53,10 +55,23 @@ export class UsersController {
 
   @GrpcMethod('UsersService', 'DetailUser')
   async detail(
-    detailUserRequest: UserDetailRequest,
+    detailUserRequest: UserDetailInput,
   ): Promise<UserDetailResponse> {
     const { result, errors } = await this.usersService.detail(
       detailUserRequest,
+    );
+
+    return {
+      result,
+      errors,
+    };
+  }
+
+  async delete(
+    deleteUserRequest: UserDeleteInput,
+  ): Promise<UserDeleteResponse> {
+    const { result, errors } = await this.usersService.delete(
+      deleteUserRequest,
     );
 
     return {

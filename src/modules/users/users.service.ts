@@ -261,6 +261,23 @@ export class UsersService {
         role: null,
         avatar: null,
       };
+
+      this.client.emit<string, UserEvent>('user.user.delete', {
+        guid: deletedUser.guid,
+        email: deletedUser.email,
+        fullName: deletedUser.fullName,
+        phoneNumber: deletedUser.phoneNumber,
+        // TODO: figure out how to get role from database
+        role: null,
+        // TODO: figure out correctness of this way of converting data to string
+        createdAt: deletedUser.createdAt.toString(),
+        // TODO: figure out correctness of this way of converting data to string
+        updatedAt: deletedUser.updatedAt.toString(),
+        isActive: deletedUser.isActive,
+        avatarUrl: null,
+        isDeleted: deletedUser.isDeleted,
+        bidsAvailable: Number(deletedUser.bidsAvailable),
+      });
     } catch (e) {
       throw new RpcException('User not found.');
     }

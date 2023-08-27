@@ -14,12 +14,13 @@ import {
   UserDetailResponse,
   UserDeleteInput,
   UserDeleteResponse,
+  UserEvent,
+  UserServiceRMQEventNamePattern,
 } from './dto';
 import { ClientRMQ, RpcException } from '@nestjs/microservices';
 import { generateGuid } from '@common/utils/generate-guid';
 import { getListOptions } from '@common/utils/list-params';
 import { Prisma } from '@prisma/generated';
-import { UserEvent } from '@src/modules/users/dto/broker.dto';
 
 @Injectable()
 export class UsersService {
@@ -66,7 +67,9 @@ export class UsersService {
       },
     });
 
-    this.client.emit<string, UserEvent>('user.user.add', {
+    const createEventNamePattern: UserServiceRMQEventNamePattern =
+      'user.user.add';
+    this.client.emit<string, UserEvent>(createEventNamePattern, {
       guid: user.guid,
       email: user.email,
       fullName: user.fullName,
@@ -141,7 +144,9 @@ export class UsersService {
       },
     });
 
-    this.client.emit<string, UserEvent>('user.user.update', {
+    const updateEventNamePattern: UserServiceRMQEventNamePattern =
+      'user.user.update';
+    this.client.emit<string, UserEvent>(updateEventNamePattern, {
       guid: updatedUser.guid,
       email: updatedUser.email,
       fullName: updatedUser.fullName,
@@ -262,7 +267,9 @@ export class UsersService {
         avatar: null,
       };
 
-      this.client.emit<string, UserEvent>('user.user.delete', {
+      const deleteEventNamePattern: UserServiceRMQEventNamePattern =
+        'user.user.delete';
+      this.client.emit<string, UserEvent>(deleteEventNamePattern, {
         guid: deletedUser.guid,
         email: deletedUser.email,
         fullName: deletedUser.fullName,

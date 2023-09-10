@@ -11,6 +11,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+type UserFavoriteCategory {
+  guid               String
+  title              String
+  description        String
+  parentGuid         String?
+}
+
 model User {
   id                 String   @id @default(auto()) @map("_id") @db.ObjectId
   guid               String   @unique
@@ -20,6 +27,7 @@ model User {
   phoneNumber        String?
   bidsAvailable      BigInt?  @default(0)
   notificationsCount BigInt?  @default(0)
+  favoriteCategories UserFavoriteCategory[]
   isActive           Boolean? @default(true)
   isDeleted          Boolean? @default(false)
   createdAt          DateTime @default(now())

@@ -1,17 +1,26 @@
 import { Controller } from '@nestjs/common';
 import { UsersService } from '@src/modules/users/users.service';
-import { GrpcMethod, Payload } from '@nestjs/microservices';
 import {
+  EventPattern,
+  GrpcMethod,
+  Payload,
+  Transport,
+} from '@nestjs/microservices';
+import {
+  CATEGORIES_SERVICE_BROKER_EVENTS,
+  DEALS_SERVICE_BROKER_EVENTS,
   UserCreateInput,
   UserCreateResponse,
-  UserUpdateResponse,
+  UserDeleteInput,
+  UserDeleteResponse,
+  UserDetailInput,
+  UserDetailResponse,
   UserListRequest,
   UserListResponse,
   UserUpdateInput,
-  UserDeleteInput,
-  UserDetailResponse,
-  UserDeleteResponse,
-  UserDetailInput,
+  UserUpdateResponse,
+  DealEvent,
+  CategoryEvent,
 } from './dto';
 
 @Controller()
@@ -67,6 +76,7 @@ export class UsersController {
     };
   }
 
+  @GrpcMethod('UsersService', 'DeleteUser')
   async delete(
     deleteUserRequest: UserDeleteInput,
   ): Promise<UserDeleteResponse> {
@@ -78,5 +88,37 @@ export class UsersController {
       result,
       errors,
     };
+  }
+
+  @EventPattern(DEALS_SERVICE_BROKER_EVENTS.DEAL_CREATED, Transport.RMQ)
+  async handleDealCreatedEvent(@Payload() data: DealEvent): Promise<void> {
+    // TODO: Handle deal created event
+    // TODO: When deal has create initial status should be "active"
+    // TODO: figure out what are exact statuses
+  }
+
+  @EventPattern(DEALS_SERVICE_BROKER_EVENTS.DEAL_UPDATED, Transport.RMQ)
+  async handleDealUpdatedEvent(@Payload() data: DealEvent): Promise<void> {
+    // TODO: Handle deal updated event
+  }
+
+  @EventPattern(
+    CATEGORIES_SERVICE_BROKER_EVENTS.CATEGORY_UPDATED,
+    Transport.RMQ,
+  )
+  async handleCategoryUpdatedEvent(
+    @Payload() data: CategoryEvent,
+  ): Promise<void> {
+    await this.usersService.updateUsersFavoriteCategories(data);
+  }
+
+  @EventPattern(
+    CATEGORIES_SERVICE_BROKER_EVENTS.CATEGORY_DELETED,
+    Transport.RMQ,
+  )
+  async handleCategoryDeletedEvent(
+    @Payload() data: CategoryEvent,
+  ): Promise<void> {
+    // TODO: implement user's favorite categories update
   }
 }

@@ -3,7 +3,7 @@ version: "3.9"
 services:
   app:
     build: .
-    image: '${TEST_IMAGE}' # make "app" to test locally, make '${TEST_IMAGE}' to test in github actions
+    image: '${TEST_IMAGE}'
     ports:
       - '8080:50051'
     environment:
@@ -14,24 +14,16 @@ services:
       RABBITMQ_HOST: 'rabbitmq'
       RABBITMQ_USERNAME: 'user'
       RABBITMQ_PASSWORD: 'bitnami'
-      MJ_APIKEY_PUBLIC: '${MJ_APIKEY_PUBLIC}'
-      MJ_APIKEY_PRIVATE: '${MJ_APIKEY_PRIVATE}'
-      REDIS_URL: 'redis://redis:6379'
-      REDIS_USERNAME: ''
-      REDIS_PASSWORD: ''
     depends_on:
       rabbitmq:
         condition: service_healthy
       mongodb-primary:
         condition: service_started
-      redis:
-        condition: service_healthy
     links:
       - mongodb-primary
       - mongodb-secondary
       - mongodb-arbiter
       - rabbitmq
-      - redis
     networks:
       - app-tier
 
@@ -101,26 +93,10 @@ services:
     networks:
       - app-tier
 
-  redis:
-    image: 'bitnami/redis:6.2.12'
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
-    networks:
-      - app-tier
-    healthcheck:
-      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
-    ports:
-      - '6379'
-    volumes:
-      - 'redis_data:/bitnami/redis/data'
-
-
 networks:
   app-tier:
     driver: bridge
 
 volumes:
   mongodb_master_data:
-    driver: local
-  redis_data:
     driver: local

@@ -1,4 +1,4 @@
-import { UserUpdateRequest } from '@protogen/user/user';
+import { UserUpdateRequest, User } from '@protogen/user/user';
 import {
   IsEmail,
   IsNotEmpty,
@@ -29,4 +29,10 @@ export class UserUpdateInput implements UserUpdateRequest {
   @IsString()
   @IsUrl()
   avatar: string;
+}
+
+export class UsersUpdateResponse {
+  result: User[] | undefined;
+  count: number | undefined;
+  errors: Error[] | undefined;
 }

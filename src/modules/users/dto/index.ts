@@ -1,6 +1,6 @@
 export { UserCreateInput } from './create-user.dto';
 
-export { UserUpdateInput } from './update-user.dto';
+export { UserUpdateInput, UsersUpdateResponse } from './update-user.dto';
 
 export { UserDetailInput } from './detail-user.dto';
 

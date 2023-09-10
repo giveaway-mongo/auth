@@ -7,6 +7,8 @@ const paths = [
   'auth/service.proto',
   'user/user.proto',
   'broker/user/user.proto',
+  'broker/deal/deal.proto',
+  'broker/category/category.proto',
 ];
 
 export const protoPath = generateCommonProtoPaths(

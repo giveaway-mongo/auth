@@ -15,7 +15,9 @@ import {
   UserDeleteInput,
   UserDeleteResponse,
   UserEvent,
-  UserServiceRMQEventNamePattern,
+  CategoryEvent,
+  USER_SERVICE_BROKER_EVENTS,
+  UsersUpdateResponse,
 } from './dto';
 import { ClientRMQ, RpcException } from '@nestjs/microservices';
 import { generateGuid } from '@common/utils/generate-guid';
@@ -26,7 +28,7 @@ import { Prisma } from '@prisma/generated';
 export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
-    @Inject('users-service') private readonly client: ClientRMQ,
+    @Inject('users-service') private readonly clientRMQ: ClientRMQ,
   ) {}
 
   async create(
@@ -67,24 +69,25 @@ export class UsersService {
       },
     });
 
-    const createEventNamePattern: UserServiceRMQEventNamePattern =
-      'user.user.add';
-    this.client.emit<string, UserEvent>(createEventNamePattern, {
-      guid: user.guid,
-      email: user.email,
-      fullName: user.fullName,
-      phoneNumber: user.phoneNumber,
-      // TODO: figure out how to get role from database
-      role: null,
-      // TODO: figure out correctness of this way of converting data to string
-      createdAt: user.createdAt.toString(),
-      // TODO: figure out correctness of this way of converting data to string
-      updatedAt: user.updatedAt.toString(),
-      isActive: user.isActive,
-      avatarUrl: null,
-      isDeleted: user.isDeleted,
-      bidsAvailable: Number(user.bidsAvailable),
-    });
+    this.clientRMQ.emit<string, UserEvent>(
+      USER_SERVICE_BROKER_EVENTS.USER_CREATED,
+      {
+        guid: user.guid,
+        email: user.email,
+        fullName: user.fullName,
+        phoneNumber: user.phoneNumber,
+        // TODO: figure out how to get role from database
+        role: null,
+        // TODO: figure out correctness of this way of converting data to string
+        createdAt: user.createdAt.toString(),
+        // TODO: figure out correctness of this way of converting data to string
+        updatedAt: user.updatedAt.toString(),
+        isActive: user.isActive,
+        avatarUrl: null,
+        isDeleted: user.isDeleted,
+        bidsAvailable: Number(user.bidsAvailable),
+      },
+    );
 
     const result: UserDto = {
       guid: user.guid,
@@ -144,24 +147,25 @@ export class UsersService {
       },
     });
 
-    const updateEventNamePattern: UserServiceRMQEventNamePattern =
-      'user.user.update';
-    this.client.emit<string, UserEvent>(updateEventNamePattern, {
-      guid: updatedUser.guid,
-      email: updatedUser.email,
-      fullName: updatedUser.fullName,
-      phoneNumber: updatedUser.phoneNumber,
-      // TODO: figure out how to get role from database
-      role: null,
-      // TODO: figure out correctness of this way of converting data to string
-      createdAt: updatedUser.createdAt.toString(),
-      // TODO: figure out correctness of this way of converting data to string
-      updatedAt: updatedUser.updatedAt.toString(),
-      isActive: updatedUser.isActive,
-      avatarUrl: null,
-      isDeleted: updatedUser.isDeleted,
-      bidsAvailable: Number(updatedUser.bidsAvailable),
-    });
+    this.clientRMQ.emit<string, UserEvent>(
+      USER_SERVICE_BROKER_EVENTS.USER_UPDATED,
+      {
+        guid: updatedUser.guid,
+        email: updatedUser.email,
+        fullName: updatedUser.fullName,
+        phoneNumber: updatedUser.phoneNumber,
+        // TODO: figure out how to get role from database
+        role: null,
+        // TODO: figure out correctness of this way of converting data to string
+        createdAt: updatedUser.createdAt.toString(),
+        // TODO: figure out correctness of this way of converting data to string
+        updatedAt: updatedUser.updatedAt.toString(),
+        isActive: updatedUser.isActive,
+        avatarUrl: null,
+        isDeleted: updatedUser.isDeleted,
+        bidsAvailable: Number(updatedUser.bidsAvailable),
+      },
+    );
 
     const transformedUser: UserDto = {
       guid: updatedUser.guid,
@@ -267,30 +271,100 @@ export class UsersService {
         avatar: null,
       };
 
-      const deleteEventNamePattern: UserServiceRMQEventNamePattern =
-        'user.user.delete';
-      this.client.emit<string, UserEvent>(deleteEventNamePattern, {
-        guid: deletedUser.guid,
-        email: deletedUser.email,
-        fullName: deletedUser.fullName,
-        phoneNumber: deletedUser.phoneNumber,
-        // TODO: figure out how to get role from database
-        role: null,
-        // TODO: figure out correctness of this way of converting data to string
-        createdAt: deletedUser.createdAt.toString(),
-        // TODO: figure out correctness of this way of converting data to string
-        updatedAt: deletedUser.updatedAt.toString(),
-        isActive: deletedUser.isActive,
-        avatarUrl: null,
-        isDeleted: deletedUser.isDeleted,
-        bidsAvailable: Number(deletedUser.bidsAvailable),
-      });
+      this.clientRMQ.emit<string, UserEvent>(
+        USER_SERVICE_BROKER_EVENTS.USER_DELETED,
+        {
+          guid: deletedUser.guid,
+          email: deletedUser.email,
+          fullName: deletedUser.fullName,
+          phoneNumber: deletedUser.phoneNumber,
+          // TODO: figure out how to get role from database
+          role: null,
+          // TODO: figure out correctness of this way of converting data to string
+          createdAt: deletedUser.createdAt.toString(),
+          // TODO: figure out correctness of this way of converting data to string
+          updatedAt: deletedUser.updatedAt.toString(),
+          isActive: deletedUser.isActive,
+          avatarUrl: null,
+          isDeleted: deletedUser.isDeleted,
+          bidsAvailable: Number(deletedUser.bidsAvailable),
+        },
+      );
     } catch (e) {
       throw new RpcException('User not found.');
     }
 
     return {
       result: deletedUserDto,
+      errors: null,
+    };
+  }
+
+  async updateUsersFavoriteCategories(
+    updatedCategory: CategoryEvent,
+  ): Promise<WithError<UsersUpdateResponse>> {
+    let updatedUsersCount = 0;
+    let updatedUsers: UserDto[] = [];
+
+    try {
+      const [count, users] = await this.prisma.$transaction(async (tx) => {
+        const usersWithCategoryToUpdate = await tx.user.findMany({
+          where: {
+            favoriteCategories: {
+              some: {
+                guid: updatedCategory.guid,
+              },
+            },
+          },
+        });
+        const usersGuids = usersWithCategoryToUpdate.map((user) => user.guid);
+
+        const { count } = await tx.user.updateMany({
+          where: {
+            guid: {
+              in: usersGuids,
+            },
+          },
+          data: {
+            favoriteCategories: {
+              updateMany: {
+                where: {
+                  guid: updatedCategory.guid,
+                },
+                data: {
+                  description: updatedCategory.description,
+                  title: updatedCategory.title,
+                  parentGuid: updatedCategory.parentGuid,
+                },
+              },
+            },
+            updatedAt: {
+              set: new Date().toISOString(),
+            },
+          },
+        });
+
+        return [count, usersWithCategoryToUpdate];
+      });
+
+      updatedUsersCount = count;
+      updatedUsers = users.map<UserDto>((user) => {
+        return {
+          guid: user.guid,
+          email: user.email,
+          fullName: user.fullName,
+          phoneNumber: user.phoneNumber,
+          role: '',
+          avatar: null,
+        };
+      });
+    } catch (e) {
+      throw new RpcException('Users not found.');
+    }
+
+    return {
+      result: updatedUsers,
+      count: updatedUsersCount,
       errors: null,
     };
   }

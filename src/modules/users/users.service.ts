@@ -368,4 +368,68 @@ export class UsersService {
       errors: null,
     };
   }
+
+  async deleteUsersFavoriteCategories(
+    deletedCategory: CategoryEvent,
+  ): Promise<WithError<UsersUpdateResponse>> {
+    let updatedUsersCount = 0;
+    let updatedUsers: UserDto[] = [];
+
+    try {
+      const [count, users] = await this.prisma.$transaction(async (tx) => {
+        const usersWithCategoryToDelete = await tx.user.findMany({
+          where: {
+            favoriteCategories: {
+              some: {
+                guid: deletedCategory.guid,
+              },
+            },
+          },
+        });
+        const usersGuids = usersWithCategoryToDelete.map((user) => user.guid);
+
+        const { count } = await tx.user.updateMany({
+          where: {
+            guid: {
+              in: usersGuids,
+            },
+          },
+          data: {
+            favoriteCategories: {
+              deleteMany: {
+                where: {
+                  guid: deletedCategory.guid,
+                },
+              },
+            },
+            updatedAt: {
+              set: new Date().toISOString(),
+            },
+          },
+        });
+
+        return [count, usersWithCategoryToDelete];
+      });
+
+      updatedUsersCount = count;
+      updatedUsers = users.map<UserDto>((user) => {
+        return {
+          guid: user.guid,
+          email: user.email,
+          fullName: user.fullName,
+          phoneNumber: user.phoneNumber,
+          role: '',
+          avatar: null,
+        };
+      });
+    } catch (e) {
+      throw new RpcException('Users not found.');
+    }
+
+    return {
+      result: updatedUsers,
+      count: updatedUsersCount,
+      errors: null,
+    };
+  }
 }

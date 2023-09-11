@@ -21,6 +21,7 @@ import {
   UserUpdateResponse,
   DealEvent,
   CategoryEvent,
+  UsersUpdateResponse,
 } from './dto';
 
 @Controller()
@@ -108,8 +109,8 @@ export class UsersController {
   )
   async handleCategoryUpdatedEvent(
     @Payload() data: CategoryEvent,
-  ): Promise<void> {
-    await this.usersService.updateUsersFavoriteCategories(data);
+  ): Promise<UsersUpdateResponse> {
+    return await this.usersService.updateUsersFavoriteCategories(data);
   }
 
   @EventPattern(
@@ -118,7 +119,7 @@ export class UsersController {
   )
   async handleCategoryDeletedEvent(
     @Payload() data: CategoryEvent,
-  ): Promise<void> {
-    // TODO: implement user's favorite categories update
+  ): Promise<UsersUpdateResponse> {
+    return await this.usersService.deleteUsersFavoriteCategories(data);
   }
 }
